@@ -1,2 +1,76 @@
 # diff_kit
-Deno lib that compares 2 strings and generates result like assertEquals(), also in HTML
+Deno lib that compares 2 strings and generates result like assertEquals(), also in HTML.
+
+## Example
+
+```ts
+import {diff, DiffText, DiffTerm, DiffHtml} from './mod.ts';
+
+const left =
+`abc
+def
+`;
+const right =
+`abc
+de*f
+`;
+
+console.log('--- Default (terminal colors) ---');
+let result = diff(left, right);
+console.log(result);
+
+console.log('--- Plain text ---');
+result = diff(left, right, new DiffText({indentWidth: 2}));
+console.log(result);
+
+console.log('--- Terminal colors ---');
+result = diff(left, right, new DiffTerm({indentWidth: 2}));
+console.log(result);
+
+console.log('--- HTML ---');
+result = diff(left, right, new DiffHtml({indentWidth: 2}));
+console.log(result);
+```
+
+# Extending this library
+
+This library contains 3 class that provide visualization of the diff result: `DiffText`, `DiffTerm` and `DiffHtml`. They are subclasses of `DiffHandler`.
+
+If you want to generate the result in different way you can create your own subclass of `DiffHandler`.
+
+The `DiffHandler` class has exactly this implementation:
+
+```ts
+export class DiffHandler
+{	protected result = '';
+
+	addEqual(part: string)
+	{	this.result += part;
+	}
+
+	addDiff(partLeft: string, partRight: string)
+	{	if (partRight)
+		{	this.result += '[-]';
+			this.result += partRight;
+		}
+		if (partLeft)
+		{	this.result += '[+]';
+			this.result += partLeft;
+		}
+		this.result += '[=]';
+	}
+
+	toString()
+	{	return this.result;
+	}
+}
+```
+
+It can be used as parameter to `diff()` without subclassing, and so the very basic plain text diff will be generated (deleted parts will be marked with `[-]...[=]`, inserted parts with `[+]...[=]`, and changed parts with `[-]...[+]...[=]`).
+
+When passing an instance of `DiffHandler` (or it's subclass) to the 3rd parameter of `diff()`, it calls it's methods:
+- `addEqual(part: string)` to add a text part that is the same for both the left-hand and the right-hand side of the diff.
+- `addDiff(partLeft: string, partRight: string)` to add part that is different. One of `partLeft` or `partRight` can be empty (but not both).
+- `toString()` - at last, the object is converted to string to get the result.
+
+So you can create an extension to this library, and use it in your project, or to publish it to `deno.land/x`. It's recommended to prefix the library name with `diff_kit_ex_`.
