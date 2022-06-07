@@ -11,6 +11,24 @@ const CR = 13;
 const LF = 10;
 const RE_NL = /\r?\n|\r/g;
 
+function findLineStart(part: string)
+{	for (let i=part.length-1; i>=0; i--)
+	{	if (part.charCodeAt(i)==CR || part.charCodeAt(i)==LF)
+		{	return i + 1;
+		}
+	}
+	return 0;
+}
+
+function findLineEnd(part: string)
+{	for (let i=0; i<part.length; i++)
+	{	if (part.charCodeAt(i)==CR || part.charCodeAt(i)==LF)
+		{	return i;
+		}
+	}
+	return -1;
+}
+
 export class DiffHandler
 {	protected result = '';
 
@@ -111,28 +129,9 @@ export class DiffText extends DiffHandler
 		return this.result==this.#addIndent ? '' : this.result;
 	}
 
-	protected findLineStart()
-	{	const {result} = this;
-		for (let i=result.length-1; i>=0; i--)
-		{	if (result.charCodeAt(i)==CR || result.charCodeAt(i)==LF)
-			{	return i + 1;
-			}
-		}
-		return 0;
-	}
-
-	protected findLineEnd(part: string)
-	{	for (let i=0; i<part.length; i++)
-		{	if (part.charCodeAt(i)==CR || part.charCodeAt(i)==LF)
-			{	return i;
-			}
-		}
-		return -1;
-	}
-
 	addEqual(part: string)
 	{	if (this.#partLeft || this.#partRight)
-		{	const pos = this.findLineEnd(part);
+		{	const pos = findLineEnd(part);
 			if (pos == -1)
 			{	this.#partLeft += this.#closeLeft + this.#deletedLightBegin + part;
 				this.#partRight += this.#closeRight + this.#insertedLightBegin + part;
@@ -151,7 +150,7 @@ export class DiffText extends DiffHandler
 	
 	addDiff(partLeft: string, partRight: string)
 	{	if (!this.#partLeft && !this.#partRight)
-		{	const lineStart = this.findLineStart();
+		{	const lineStart = findLineStart(this.result);
 			let line = this.result.slice(lineStart);
 			this.result = this.result.slice(0, lineStart);
 			if (line.charCodeAt(0) == SPACE)
