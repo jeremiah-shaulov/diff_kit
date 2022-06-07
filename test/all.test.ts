@@ -68,5 +68,81 @@ Deno.test
 				)
 			);
 		}
+		{	const left =
+			`	abc
+				def
+			`;
+			const right =
+			`	abc2
+				def
+			`;
+			const d = diff(unindent(left), unindent(right), new DiffText({indentWidth: 2}));
+			assertEquals
+			(	d,
+				unindent
+				(	`- abc
+					+ abc2
+					  def
+					`
+				)
+			);
+		}
+		{	const left =
+			`	abc2
+				def
+			`;
+			const right =
+			`	abc
+				def
+			`;
+			const d = diff(unindent(left), unindent(right), new DiffText({indentWidth: 2}));
+			assertEquals
+			(	d,
+				unindent
+				(	`- abc2
+					+ abc
+					  def
+					`
+				)
+			);
+		}
+		{	const left =
+			`	abc
+				def
+			`;
+			const right =
+			`	1abc
+				def
+			`;
+			const d = diff(unindent(left), unindent(right), new DiffText({indentWidth: 2}));
+			assertEquals
+			(	d,
+				unindent
+				(	`- abc
+					+ 1abc
+					  def
+					`
+				)
+			);
+		}
+		{	const left =
+			`	1abc
+				def
+			`;
+			const right =
+			`	abc
+				def
+			`;
+			const d = diff(unindent(left), unindent(right), new DiffText({indentWidth: 2}));
+			assertEquals
+			(	d,
+				unindent
+				(	`- 1abc
+					+ abc
+					  def
+					`
+				)
+			);
+		}
 	}
 );

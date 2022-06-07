@@ -98,6 +98,8 @@ export class DiffText extends DiffHandler
 
 		this.#addIndentMinus = this.#minusBegin + '-' + this.#minusEnd + (this.#addIndent=='\t' ? '\t' : this.#addIndent.slice(0, -1)) + this.#deletedBegin;
 		this.#addIndentPlus = this.#plusBegin + '+' + this.#plusEnd + (this.#addIndent=='\t' ? '\t' : this.#addIndent.slice(0, -1)) + this.#insertedBegin;
+
+		this.result = this.#addIndent;
 	}
 
 	toString()
@@ -106,7 +108,7 @@ export class DiffText extends DiffHandler
 			this.#partLeft = '';
 			this.#partRight = '';
 		}
-		return this.result ? this.#addIndent+this.result : '';
+		return this.result==this.#addIndent ? '' : this.result;
 	}
 
 	protected findLineStart()
@@ -153,7 +155,7 @@ export class DiffText extends DiffHandler
 			let line = this.result.slice(lineStart);
 			this.result = this.result.slice(0, lineStart);
 			if (line.charCodeAt(0) == SPACE)
-			{	line = line.slice(1);
+			{	line = line.slice(1); // replace space with '-' or '+'
 			}
 			this.#partLeft = this.#minusBegin + '-' + this.#minusEnd + this.#deletedLightBegin + line + this.#deletedLightEnd + this.#deletedBegin;
 			this.#partRight = this.#plusBegin + '+' + this.#plusEnd + this.#insertedLightBegin + line + this.#insertedLightEnd + this.#insertedBegin;
