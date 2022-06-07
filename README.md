@@ -68,9 +68,11 @@ export class DiffHandler
 
 It can be used as parameter to `diff()` without subclassing, and so the very basic plain text diff will be generated (deleted parts will be marked with `[-]...[=]`, inserted parts with `[+]...[=]`, and changed parts with `[-]...[+]...[=]`).
 
-When passing an instance of `DiffHandler` (or it's subclass) to the 3rd parameter of `diff()`, it calls it's methods:
-- `addEqual(part: string)` to add a text part that is the same for both the left-hand and the right-hand side of the diff.
-- `addDiff(partLeft: string, partRight: string)` to add part that is different. One of `partLeft` or `partRight` can be empty (but not both).
+When passing an instance of `DiffHandler` (or it's subclass) to the 3rd parameter of `diff()`, the following methods of the handler get called:
+- `addEqual(part: string)` add a text part that is the same for both the left-hand and the right-hand side of the diff.
+- `addDiff(partLeft: string, partRight: string)` add part that is different. One of `partLeft` or `partRight` can be empty (but not both).
 - `toString()` - at last, the object is converted to string to get the result.
+
+The same method is not called twice in sequence. That is, for example, after `addEqual()` will be called either `addDiff()` or `toString()`.
 
 So you can create an extension to this library, and use it in your project, or to publish it to `deno.land/x`. It's recommended to prefix the library name with `diff_kit_ex_`.
