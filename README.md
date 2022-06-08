@@ -4,7 +4,7 @@ Deno lib that compares 2 strings and generates result like assertEquals(), also 
 ## Example
 
 ```ts
-import {diff, DiffText, DiffTerm, DiffHtml} from 'https://deno.land/x/diff_kit@v0.0.2/mod.ts';
+import {diff, DiffText, DiffTerm, DiffHtml} from 'https://deno.land/x/diff_kit@v0.0.3/mod.ts';
 
 const left =
 `abc

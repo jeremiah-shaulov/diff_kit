@@ -144,5 +144,25 @@ Deno.test
 				)
 			);
 		}
+		{	const left =
+			`	abc
+				def
+			`;
+			const right =
+			`	abc
+				d*e*f
+			`;
+			const d = diff(unindent(left), unindent(right), new DiffText({indentWidth: 2}));
+			assertEquals
+			(	d,
+				'  '+
+				unindent
+				(	` abc
+					- def
+					+ d*e*f
+					`
+				)
+			);
+		}
 	}
 );
