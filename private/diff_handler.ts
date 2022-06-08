@@ -120,7 +120,7 @@ export class DiffText extends DiffHandler
 
 	toString()
 	{	if (this.#partLeft || this.#partRight)
-		{	this.result += this.#partLeft + this.#deletedEnd + this.#deletedLightBegin + this.#deletedLightEnd + '\n' + this.#partRight + this.#insertedEnd + this.#insertedLightBegin + this.#insertedLightEnd;
+		{	this.result += this.#partLeft + this.#deletedLightEnd + '\n' + this.#partRight + this.#insertedLightEnd;
 			this.#partLeft = '';
 			this.#partRight = '';
 		}
