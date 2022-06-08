@@ -92,8 +92,6 @@ export class DiffText extends DiffHandler
 
 	#partLeft = '';
 	#partRight = '';
-	#closeLeft = '';
-	#closeRight = '';
 
 	constructor(options?: DiffTextOptions, styles?: DiffTextStyles)
 	{	super();
@@ -133,14 +131,12 @@ export class DiffText extends DiffHandler
 	{	if (this.#partLeft || this.#partRight)
 		{	const pos = findLineEnd(part);
 			if (pos == -1)
-			{	this.#partLeft += this.#closeLeft + this.#deletedLightBegin + part;
-				this.#partRight += this.#closeRight + this.#insertedLightBegin + part;
-				this.#closeLeft = this.#deletedLightEnd;
-				this.#closeRight = this.#insertedLightEnd;
+			{	this.#partLeft += part;
+				this.#partRight += part;
 				return;
 			}
 			const add = part.slice(0, pos);
-			this.result += this.#partLeft + this.#closeLeft + this.#deletedLightBegin + add + this.#deletedLightEnd + '\n' + this.#partRight + this.#closeRight + this.#insertedLightBegin + add + this.#insertedLightEnd;
+			this.result += this.#partLeft + add + this.#deletedLightEnd + '\n' + this.#partRight + add + this.#insertedLightEnd;
 			part = part.slice(pos);
 			this.#partLeft = '';
 			this.#partRight = '';
@@ -156,18 +152,14 @@ export class DiffText extends DiffHandler
 			if (line.charCodeAt(0) == SPACE)
 			{	line = line.slice(1); // replace space with '-' or '+'
 			}
-			this.#partLeft = this.#minusBegin + '-' + this.#minusEnd + this.#deletedLightBegin + line + this.#deletedLightEnd + this.#deletedBegin;
-			this.#partRight = this.#plusBegin + '+' + this.#plusEnd + this.#insertedLightBegin + line + this.#insertedLightEnd + this.#insertedBegin;
-			this.#closeLeft = this.#deletedEnd;
-			this.#closeRight = this.#insertedEnd;
+			this.#partLeft = this.#minusBegin + '-' + this.#minusEnd + this.#deletedLightBegin + line;
+			this.#partRight = this.#plusBegin + '+' + this.#plusEnd + this.#insertedLightBegin + line;
 		}
 		if (partLeft)
-		{	this.#partLeft += partLeft.replace(RE_NL, m => this.#closeLeft + m + this.#addIndentMinus);
-			this.#closeLeft = this.#deletedEnd;
+		{	this.#partLeft += this.#deletedLightEnd + this.#deletedBegin + partLeft.replace(RE_NL, m => this.#deletedEnd + m + this.#addIndentMinus) + this.#deletedEnd + this.#deletedLightBegin;
 		}
 		if (partRight)
-		{	this.#partRight += partRight.replace(RE_NL, m => this.#closeRight + m + this.#addIndentPlus);
-			this.#closeRight = this.#insertedEnd;
+		{	this.#partRight += this.#insertedLightEnd + this.#insertedBegin + partRight.replace(RE_NL, m => this.#insertedEnd + m + this.#addIndentPlus) + this.#insertedEnd + this.#insertedLightBegin;
 		}
 	}
 }
