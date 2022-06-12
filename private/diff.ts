@@ -20,8 +20,8 @@ export function diff(left: DiffSubj, right: DiffSubj, diffHandler: DiffHandler=n
 			let missingFromLast=0, missingLenLast=0;
 			let bothDiffLen = 0;
 			while (l<lLen && r<rLen)
-			{	for (let li=l, ri=r; li<lLen && ri<rLen; li++, ri++)
-				{	// Starting from which ai the longest string from e is found?
+			{	for (let li=l, ri=r; li<lLen || ri<rLen; li++, ri++)
+				{	// Starting from which li the longest string from r is found?
 					if (left.charCodeAt(li) == right.charCodeAt(r+extraLen))
 					{	if (extraLen++ == 0)
 						{	extraFrom = li - l;
@@ -36,7 +36,7 @@ export function diff(left: DiffSubj, right: DiffSubj, diffHandler: DiffHandler=n
 						extraFrom -= overlap - 1;
 						extraLen -= overlap;
 					}
-					// Starting from which ei the longest string from a is found?
+					// Starting from which ri the longest string from l is found?
 					if (left.charCodeAt(l+missingLen) == right.charCodeAt(ri))
 					{	if (missingLen++ == 0)
 						{	missingFrom = li - l;
@@ -107,9 +107,10 @@ export function diff(left: DiffSubj, right: DiffSubj, diffHandler: DiffHandler=n
 				else
 				{	diffHandler.addDiff('', right.slice(r, r+from));
 				}
+				r += from;
 				pos = l;
 				l += len - 1; // will l++ on the next iter
-				r += from + len - 1; // will r++ on the next iter
+				r += len - 1; // will r++ on the next iter
 			}
 		}
 	}

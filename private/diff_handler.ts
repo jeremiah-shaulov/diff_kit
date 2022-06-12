@@ -6,28 +6,8 @@ const GREEN_ON_DEFAULT = '\x1b[0;32m';
 const WHITE_ON_GREEN = '\x1b[97;42m';
 const RESET = '\x1b[0m';
 
-const SPACE = 32;
 const CR = 13;
 const LF = 10;
-const RE_NL = /\r?\n|\r/g;
-
-function findLineStart(part: string)
-{	for (let i=part.length-1; i>=0; i--)
-	{	if (part.charCodeAt(i)==CR || part.charCodeAt(i)==LF)
-		{	return i + 1;
-		}
-	}
-	return 0;
-}
-
-function findLineEnd(part: string)
-{	for (let i=0; i<part.length; i++)
-	{	if (part.charCodeAt(i)==CR || part.charCodeAt(i)==LF)
-		{	return i;
-		}
-	}
-	return -1;
-}
 
 export class DiffHandler
 {	protected result = '';
@@ -90,8 +70,13 @@ export class DiffText extends DiffHandler
 	#insertedLightEnd: string;
 	#insertedEnd: string;
 
-	#partLeft = '';
-	#partRight = '';
+	#left = '';
+	#right = '';
+	#leftHalfLine = '';
+	#rightHalfLine = '';
+	#eqHalfLine = '';
+	#leftHalfLineIsLight = false;
+	#rightHalfLineIsLight = false;
 
 	constructor(options?: DiffTextOptions, styles?: DiffTextStyles)
 	{	super();
@@ -112,55 +97,179 @@ export class DiffText extends DiffHandler
 		this.#insertedLightEnd = styles?.insertedLightEnd ?? '';
 		this.#insertedEnd = styles?.insertedEnd ?? '';
 
-		this.#addIndentMinus = this.#minusBegin + '-' + this.#minusEnd + (this.#addIndent=='\t' ? '\t' : this.#addIndent.slice(0, -1)) + this.#deletedBegin;
-		this.#addIndentPlus = this.#plusBegin + '+' + this.#plusEnd + (this.#addIndent=='\t' ? '\t' : this.#addIndent.slice(0, -1)) + this.#insertedBegin;
-
-		this.result = this.#addIndent;
+		this.#addIndentMinus = this.#minusBegin + '-' + this.#minusEnd + (this.#addIndent=='\t' ? '\t' : this.#addIndent.slice(0, -1));
+		this.#addIndentPlus = this.#plusBegin + '+' + this.#plusEnd + (this.#addIndent=='\t' ? '\t' : this.#addIndent.slice(0, -1));
 	}
 
 	toString()
-	{	if (this.#partLeft || this.#partRight)
-		{	this.result += this.#partLeft + this.#deletedLightEnd + '\n' + this.#partRight + this.#insertedLightEnd;
-			this.#partLeft = '';
-			this.#partRight = '';
+	{	if (!this.#left && !this.#right && this.#eqHalfLine)
+		{	this.result += this.#addIndent + this.#eqHalfLine;
+			this.#leftHalfLine = '';
+			this.#rightHalfLine = '';
+			this.#eqHalfLine = '';
 		}
-		return this.result==this.#addIndent ? '' : this.result;
+		else if (this.#left || this.#right || this.#leftHalfLine || this.#rightHalfLine)
+		{	this.result += this.#left;
+			if (this.#leftHalfLine)
+			{	this.result += this.#addIndentMinus + this.#leftHalfLine + (this.#leftHalfLineIsLight ? this.#deletedLightEnd : this.#deletedEnd) + '\n';
+			}
+			this.result += this.#right;
+			if (this.#rightHalfLine)
+			{	this.result += this.#addIndentPlus + this.#rightHalfLine + (this.#rightHalfLineIsLight ? this.#insertedLightEnd : this.#insertedEnd);
+			}
+			this.#left = this.#leftHalfLine = '';
+			this.#right = this.#rightHalfLine = '';
+		}
+		return this.result;
 	}
 
 	addEqual(part: string)
-	{	if (this.#partLeft || this.#partRight)
-		{	const pos = findLineEnd(part);
-			if (pos == -1)
-			{	this.#partLeft += part;
-				this.#partRight += part;
+	{	if (this.#leftHalfLine || this.#rightHalfLine)
+		{	let i;
+			for (i=0; i<part.length; i++)
+			{	const c = part.charCodeAt(i);
+				if (c==CR || c==LF)
+				{	const j = i++;
+					if (c==CR && part.charCodeAt(i)==LF)
+					{	i++;
+					}
+					const halfLine = part.slice(0, j);
+					const nl = part.slice(j, i);
+					part = part.slice(i);
+					this.result += this.#left + this.#addIndentMinus + this.#leftHalfLine;
+					if (this.#leftHalfLineIsLight)
+					{	this.result += halfLine + this.#deletedLightEnd;
+					}
+					else
+					{	if (this.#leftHalfLine)
+						{	this.result += this.#deletedEnd;
+						}
+						if (halfLine)
+						{	this.result += this.#deletedLightBegin + halfLine + this.#deletedLightEnd;
+						}
+					}
+					this.result += nl;
+					this.result += this.#right + this.#addIndentPlus + this.#rightHalfLine;
+					if (this.#rightHalfLineIsLight)
+					{	this.result += halfLine + this.#insertedLightEnd;
+					}
+					else
+					{	if (this.#rightHalfLine)
+						{	this.result += this.#insertedEnd;
+						}
+						if (halfLine)
+						{	this.result += this.#insertedLightBegin + halfLine + this.#insertedLightEnd;
+						}
+					}
+					this.result += nl;
+					this.#left = this.#leftHalfLine = '';
+					this.#right = this.#rightHalfLine = '';
+					if (i == part.length)
+					{	this.#leftHalfLine = this.#deletedLightBegin + part;
+						this.#rightHalfLine = this.#insertedLightBegin + part;
+						this.#eqHalfLine = part;
+						this.#leftHalfLineIsLight = true;
+						this.#rightHalfLineIsLight = true;
+						return;
+					}
+					break;
+				}
+			}
+			if (i == part.length)
+			{	if (!this.#leftHalfLineIsLight)
+				{	if (this.#leftHalfLine)
+					{	this.#leftHalfLine += this.#deletedEnd;
+					}
+					this.#leftHalfLine += this.#deletedLightBegin;
+					this.#leftHalfLineIsLight = true;
+				}
+				if (!this.#rightHalfLineIsLight)
+				{	if (this.#rightHalfLine)
+					{	this.#rightHalfLine += this.#insertedEnd;
+					}
+					this.#rightHalfLine += this.#insertedLightBegin;
+					this.#rightHalfLineIsLight = true;
+				}
+				this.#leftHalfLine += part;
+				this.#rightHalfLine += part;
 				return;
 			}
-			const add = part.slice(0, pos);
-			this.result += this.#partLeft + add + this.#deletedLightEnd + '\n' + this.#partRight + add + this.#insertedLightEnd;
-			part = part.slice(pos);
-			this.#partLeft = '';
-			this.#partRight = '';
 		}
-		this.result += part.replace(RE_NL, m => m + this.#addIndent);
+		const {result, halfLine} = this.#addOne(this.result, '', part, this.#addIndent, false, '', '', '');
+		this.result = result;
+		if (halfLine)
+		{	this.#leftHalfLine = this.#deletedLightBegin + halfLine;
+			this.#rightHalfLine = this.#insertedLightBegin + halfLine;
+			this.#eqHalfLine = halfLine;
+			this.#leftHalfLineIsLight = true;
+			this.#rightHalfLineIsLight = true;
+		}
 	}
 	
 	addDiff(partLeft: string, partRight: string)
-	{	if (!this.#partLeft && !this.#partRight)
-		{	const lineStart = findLineStart(this.result);
-			let line = this.result.slice(lineStart);
-			this.result = this.result.slice(0, lineStart);
-			if (line.charCodeAt(0) == SPACE)
-			{	line = line.slice(1); // replace space with '-' or '+'
+	{	this.#eqHalfLine = '';
+		// deno-lint-ignore no-var
+		var {result, halfLine, isLight} = this.#addOne(this.#left, this.#leftHalfLine, partLeft, this.#addIndentMinus, this.#leftHalfLineIsLight, this.#deletedLightEnd, this.#deletedBegin, this.#deletedEnd);
+		this.#left = result;
+		this.#leftHalfLine = halfLine;
+		this.#leftHalfLineIsLight = isLight;
+		// deno-lint-ignore no-var, no-redeclare
+		var {result, halfLine, isLight} = this.#addOne(this.#right, this.#rightHalfLine, partRight, this.#addIndentPlus, this.#rightHalfLineIsLight, this.#insertedLightEnd, this.#insertedBegin, this.#insertedEnd);
+		this.#right = result;
+		this.#rightHalfLine = halfLine;
+		this.#rightHalfLineIsLight = isLight;
+		if (!this.#leftHalfLine && !this.#rightHalfLine)
+		{	this.result += this.#left;
+			this.result += this.#right;
+			this.#left = '';
+			this.#right = '';
+		}
+	}
+	
+	#addOne(result: string, halfLine: string, part: string, indent: string, isLight: boolean, lightEnd: string, begin: string, end: string)
+	{	let from = 0;
+		for (let i=0; i<part.length; i++)
+		{	const c = part.charCodeAt(i);
+			if (c==CR || c==LF)
+			{	const j = i++;
+				if (c==CR && part.charCodeAt(i)==LF)
+				{	i++;
+				}
+				result += indent;
+				let add = part.slice(from, j);
+				if (halfLine)
+				{	result += halfLine;
+					halfLine = '';
+					if (isLight)
+					{	result += lightEnd;
+						isLight = false;
+					}
+					else
+					{	result += add + end;
+						add = '';
+					}
+				}
+				if (add)
+				{	result += begin + add + end;
+				}
+				result += part.slice(j, i);
+				from = i;
 			}
-			this.#partLeft = this.#minusBegin + '-' + this.#minusEnd + this.#deletedLightBegin + line;
-			this.#partRight = this.#plusBegin + '+' + this.#plusEnd + this.#insertedLightBegin + line;
 		}
-		if (partLeft)
-		{	this.#partLeft += this.#deletedLightEnd + this.#deletedBegin + partLeft.replace(RE_NL, m => this.#deletedEnd + m + this.#addIndentMinus) + this.#deletedEnd + this.#deletedLightBegin;
+		const halfLine2 = part.slice(from);
+		if (halfLine2)
+		{	if (halfLine)
+			{	if (isLight)
+				{	halfLine += lightEnd + begin;
+				}
+				halfLine += halfLine2;
+			}
+			else
+			{	halfLine = begin + halfLine2;
+			}
+			isLight = false;
 		}
-		if (partRight)
-		{	this.#partRight += this.#insertedLightEnd + this.#insertedBegin + partRight.replace(RE_NL, m => this.#insertedEnd + m + this.#addIndentPlus) + this.#insertedEnd + this.#insertedLightBegin;
-		}
+		return {result, halfLine, isLight};
 	}
 }
 
