@@ -1,5 +1,7 @@
 export {diff} from './private/diff.ts';
 
+export type {DiffSubj} from './private/diff.ts';
+
 export
 {	DiffHandler,
 	DiffText,

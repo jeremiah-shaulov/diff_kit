@@ -1,6 +1,12 @@
 import {DiffHandler, DiffTerm} from './diff_handler.ts';
 
-export function diff(left: string, right: string, diffHandler: DiffHandler=new DiffTerm({indentWidth: 4}))
+export interface DiffSubj
+{	readonly length: number;
+	charCodeAt(i: number): number;
+	slice(from: number, to: number): string;
+}
+
+export function diff(left: DiffSubj, right: DiffSubj, diffHandler: DiffHandler=new DiffTerm({indentWidth: 4}))
 {	const lLen = left.length;
 	const rLen = right.length;
 	let l = 0;
@@ -77,7 +83,7 @@ export function diff(left: string, right: string, diffHandler: DiffHandler=new D
 			}
 			// add non-equal part
 			if (len == 0)
-			{	diffHandler.addDiff(left.slice(l-bothDiffLen), right.slice(r-bothDiffLen));
+			{	diffHandler.addDiff(left.slice(l-bothDiffLen, lLen), right.slice(r-bothDiffLen, rLen));
 				pos = l = lLen;
 				r = rLen;
 				break;
@@ -111,15 +117,15 @@ export function diff(left: string, right: string, diffHandler: DiffHandler=new D
 	{	diffHandler.addEqual(left.slice(pos, l));
 	}
 	if (l < lLen)
-	{	diffHandler.addDiff(left.slice(l), '');
+	{	diffHandler.addDiff(left.slice(l, lLen), '');
 	}
 	else if (r < rLen)
-	{	diffHandler.addDiff('', right.slice(r));
+	{	diffHandler.addDiff('', right.slice(r, rLen));
 	}
 	return diffHandler + '';
 }
 
-function findOverlap(str: string, from: number, len: number, nextChar: number)
+function findOverlap(str: DiffSubj, from: number, len: number, nextChar: number)
 {	const to = from + len;
 	// find `str.slice(from, to-i) == str.slice(from+i, to)` followed by `nextChar`
 L:	for (let i=1; i<to-from; i++)

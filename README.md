@@ -32,16 +32,32 @@ result = diff(left, right, new DiffHtml({indentWidth: 2}));
 console.log(result);
 ```
 
-# Extending this library
+## diff()
 
-This library contains 3 class that provide visualization of the diff result: `DiffText`, `DiffTerm` and `DiffHtml`. They are subclasses of `DiffHandler`.
+The main function that this module is exporting is called `diff()`.
 
-If you want to generate the result in different way you can create your own subclass of `DiffHandler`.
+```ts
+interface DiffSubj
+{	readonly length: number;
+	charCodeAt(i: number): number;
+	slice(from: number, to: number): string;
+}
+
+function diff(left: DiffSubj, right: DiffSubj, diffHandler: DiffHandler=new DiffTerm({indentWidth: 4}))
+```
+
+The `DiffSubj` interface is string-compatible, and the most usual use case is to pass strings to the `diff()` function.
+
+## Extending this library
+
+This library contains 3 classes that provide visualization of the diff result: `DiffText`, `DiffTerm` and `DiffHtml`. They are subclasses of `DiffHandler`.
+
+If you want to generate the result in a different way you can create your own subclass of `DiffHandler`.
 
 The `DiffHandler` class has exactly this implementation:
 
 ```ts
-export class DiffHandler
+class DiffHandler
 {	protected result = '';
 
 	addEqual(part: string)
