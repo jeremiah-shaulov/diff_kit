@@ -1,5 +1,6 @@
-import {diff, DiffText} from '../../mod.ts';
-import {assert, assertEquals} from "https://deno.land/std@0.106.0/testing/asserts.ts";
+import {diff, DiffHandler, DiffHtml, DiffTerm, DiffText} from '../../mod.ts';
+import {BOLD_RED_ON_DEFAULT, RED_ON_DEFAULT, WHITE_ON_RED, BOLD_GREEN_ON_DEFAULT, GREEN_ON_DEFAULT, WHITE_ON_GREEN, RESET} from '../diff_handler.ts';
+import {assertEquals} from "https://deno.land/std@0.106.0/testing/asserts.ts";
 
 function unindent(text: string)
 {	return text.trim().replace(/[\r\n]\t+/g, m => m[0]);
@@ -23,7 +24,14 @@ const STYLE =
 Deno.test
 (	'All',
 	() =>
-	{	{	const left =
+	{	assertEquals(diff('', '', new DiffText), '');
+		assertEquals(diff('', '', new DiffTerm), '');
+		assertEquals(diff('', '', new DiffHtml), '');
+		assertEquals(diff('a', '', new DiffText({indentWidth: 2}, STYLE)), '<->-</-> <del>a</del>');
+		assertEquals(diff('', 'b', new DiffText({indentWidth: 2}, STYLE)), '<+>+</+> <ins>b</ins>');
+		assertEquals(diff('a\r\nb', 'a\r\nb', new DiffText({indentWidth: 2}, STYLE)), '  a\r\n  b');
+		assertEquals(diff('1\r\na\r\nb', '2\r\na\r\nb', new DiffText({indentWidth: 2}, STYLE)), '<->-</-> <del>1</del>\r\n<+>+</+> <ins>2</ins>\r\n  a\r\n  b');
+		{	const left =
 			`	abc
 				def
 			`;
@@ -31,7 +39,7 @@ Deno.test
 			`	abc
 				d2ef
 			`;
-			const d = diff(unindent(left), unindent(right), new DiffText({indentWidth: 2}, STYLE));
+			const d = diff(unindent(left), unindent(right), new DiffTerm({indentWidth: 2}, STYLE));
 			assertEquals
 			(	d,
 				'  '+
@@ -39,6 +47,117 @@ Deno.test
 				(	` abc
 					<->-</-> <d>def</d>
 					<+>+</+> <i>d</i><ins>2</ins><i>ef</i>
+					`
+				)
+			);
+		}
+		{	const left =
+			`	abc
+				def
+			`;
+			const right =
+			`	abc
+				d2ef
+			`;
+			const d = diff(unindent(left), unindent(right), new DiffTerm({indentWidth: 2}));
+			assertEquals
+			(	d,
+				'  '+
+				unindent
+				(	` abc
+					${BOLD_RED_ON_DEFAULT}- ${RED_ON_DEFAULT}def${RESET}
+					${BOLD_GREEN_ON_DEFAULT}+ ${GREEN_ON_DEFAULT}d${RESET}${WHITE_ON_GREEN}2${RESET}${GREEN_ON_DEFAULT}ef${RESET}
+					`
+				)
+			);
+		}
+		{	const left =
+			`	abc
+				def
+			`;
+			const right =
+			`	abc
+				d2ef
+			`;
+			const d = diff(unindent(left), unindent(right), new DiffText({indentWidth: 2}));
+			assertEquals
+			(	d,
+				'  '+
+				unindent
+				(	` abc
+					- def
+					+ d2ef
+					`
+				)
+			);
+		}
+		{	const left =
+			`	abc
+				def
+			`;
+			const right =
+			`	abc
+				d2ef
+			`;
+			const d = diff(unindent(left), unindent(right), new DiffText);
+			assertEquals
+			(	d, `\tabc\n-\tdef\n+\td2ef`
+			);
+		}
+		{	const left =
+			`	abc
+				def
+			`;
+			const right =
+			`	abc
+				d2ef
+			`;
+			const d = diff(unindent(left), unindent(right), new DiffHtml({indentWidth: 2}, STYLE));
+			assertEquals
+			(	d,
+				'<div style="white-space:pre">  '+
+				unindent
+				(	` abc
+					<->-</-> <d>def</d>
+					<+>+</+> <i>d</i><ins>2</ins><i>ef</i>
+					`
+				)+'</div>'
+			);
+		}
+		{	const left =
+			`	abc
+				def
+			`;
+			const right =
+			`	abc
+				d2ef
+			`;
+			const d = diff(unindent(left), unindent(right), new DiffHtml({indentWidth: 2}));
+			assertEquals
+			(	d,
+				'<div style="white-space:pre">  '+
+				unindent
+				(	` abc
+					<b style="color:red">-</b> <span style="color:red">def</span>
+					<b style="color:green">+</b> <span style="color:green">d</span><span style="background-color:green; color:white">2</span><span style="color:green">ef</span>
+					`
+				)+'</div>'
+			);
+		}
+		{	const left =
+			`	abc
+				def
+			`;
+			const right =
+			`	abc
+				d2ef
+			`;
+			const d = diff(unindent(left), unindent(right), new DiffHandler);
+			assertEquals
+			(	d,
+				unindent
+				(	`abc
+					d[-]2[=]ef
 					`
 				)
 			);
@@ -59,6 +178,24 @@ Deno.test
 				(	` abc
 					<->-</-> <d>de</d><del>2</del><d>f</d>
 					<+>+</+> <i>def</i>
+					`
+				)
+			);
+		}
+		{	const left =
+			`	abc
+				de2f
+			`;
+			const right =
+			`	abc
+				def
+			`;
+			const d = diff(unindent(left), unindent(right), new DiffHandler);
+			assertEquals
+			(	d,
+				unindent
+				(	`abc
+					de[+]2[=]f
 					`
 				)
 			);
@@ -312,6 +449,70 @@ Deno.test
 				unindent
 				(	`<->-</-> <d>abbc</d>
 					<+>+</+> <i>abb</i><ins>b</ins><i>c</i>
+					`
+				)
+			);
+		}
+		{	const left =
+			`	abab1
+			`;
+			const right =
+			`	1ababab1
+			`;
+			const d = diff(unindent(left), unindent(right), new DiffText({indentWidth: 2}, STYLE));
+			assertEquals
+			(	d,
+				unindent
+				(	`<->-</-> <d>abab1</d>
+					<+>+</+> <ins>1ab</ins><i>abab1</i>
+					`
+				)
+			);
+		}
+		{	const left =
+			`	1bab
+			`;
+			const right =
+			`	2abab
+			`;
+			const d = diff(unindent(left), unindent(right), new DiffText({indentWidth: 2}, STYLE));
+			assertEquals
+			(	d,
+				unindent
+				(	`<->-</-> <del>1</del><d>bab</d>
+					<+>+</+> <ins>2a</ins><i>bab</i>
+					`
+				)
+			);
+		}
+		{	const left =
+			`	abcdef
+			`;
+			const right =
+			`	abc
+			`;
+			const d = diff(unindent(left), unindent(right), new DiffText({indentWidth: 2}, STYLE));
+			assertEquals
+			(	d,
+				unindent
+				(	`<->-</-> <d>abc</d><del>def</del>
+					<+>+</+> <i>abc</i>
+					`
+				)
+			);
+		}
+		{	const left =
+			`	abac1
+			`;
+			const right =
+			`	1abacab1
+			`;
+			const d = diff(unindent(left), unindent(right), new DiffText({indentWidth: 2}, STYLE));
+			assertEquals
+			(	d,
+				unindent
+				(	`<->-</-> <d>abac1</d>
+					<+>+</+> <ins>1</ins><i>abac</i><ins>ab</ins><i>1</i>
 					`
 				)
 			);

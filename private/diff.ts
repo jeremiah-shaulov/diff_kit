@@ -33,7 +33,7 @@ export function diff(left: DiffSubj, right: DiffSubj, diffHandler: DiffHandler=n
 							extraLenLast = extraLen;
 						}
 						const overlap = findOverlap(right, r, extraLen, left.charCodeAt(li));
-						extraFrom -= overlap - 1;
+						extraFrom += overlap + 1;
 						extraLen -= overlap;
 					}
 					// Starting from which ri the longest string from l is found?
@@ -48,7 +48,7 @@ export function diff(left: DiffSubj, right: DiffSubj, diffHandler: DiffHandler=n
 							missingLenLast = missingLen;
 						}
 						const overlap = findOverlap(left, l, missingLen, right.charCodeAt(ri));
-						missingFrom -= overlap - 1;
+						missingFrom += overlap + 1;
 						missingLen -= overlap;
 					}
 				}
@@ -136,7 +136,7 @@ L:	for (let i=1; i<to-from; i++)
 				{	continue L;
 				}
 			}
-			return len - (to - from - i + 1);
+			return len - (to - from - i) - 1;
 		}
 	}
 	return len;

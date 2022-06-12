@@ -1,10 +1,10 @@
-const BOLD_RED_ON_DEFAULT = '\x1b[1;31m';
-const RED_ON_DEFAULT = '\x1b[0;31m';
-const WHITE_ON_RED = '\x1b[97;41m';
-const BOLD_GREEN_ON_DEFAULT = '\x1b[1;32m';
-const GREEN_ON_DEFAULT = '\x1b[0;32m';
-const WHITE_ON_GREEN = '\x1b[97;42m';
-const RESET = '\x1b[0m';
+export const BOLD_RED_ON_DEFAULT = '\x1b[1;31m';
+export const RED_ON_DEFAULT = '\x1b[0;31m';
+export const WHITE_ON_RED = '\x1b[97;41m';
+export const BOLD_GREEN_ON_DEFAULT = '\x1b[1;32m';
+export const GREEN_ON_DEFAULT = '\x1b[0;32m';
+export const WHITE_ON_GREEN = '\x1b[97;42m';
+export const RESET = '\x1b[0m';
 
 const CR = 13;
 const LF = 10;
@@ -111,7 +111,10 @@ export class DiffText extends DiffHandler
 		else if (this.#left || this.#right || this.#leftHalfLine || this.#rightHalfLine)
 		{	this.result += this.#left;
 			if (this.#leftHalfLine)
-			{	this.result += this.#addIndentMinus + this.#leftHalfLine + (this.#leftHalfLineIsLight ? this.#deletedLightEnd : this.#deletedEnd) + '\n';
+			{	this.result += this.#addIndentMinus + this.#leftHalfLine + (this.#leftHalfLineIsLight ? this.#deletedLightEnd : this.#deletedEnd);
+				if (this.#right || this.#rightHalfLine)
+				{	this.result += '\n';
+				}
 			}
 			this.result += this.#right;
 			if (this.#rightHalfLine)
@@ -274,40 +277,42 @@ export class DiffText extends DiffHandler
 }
 
 export class DiffTerm extends DiffText
-{	constructor(options?: DiffTextOptions)
+{	constructor(options?: DiffTextOptions, styles?: DiffTextStyles)
 	{	super
 		(	options,
-			{	minusBegin: BOLD_RED_ON_DEFAULT,
-				plusBegin: BOLD_GREEN_ON_DEFAULT,
-				deletedBegin: WHITE_ON_RED,
-				deletedEnd: RESET,
-				insertedBegin: WHITE_ON_GREEN,
-				insertedEnd: RESET,
-				deletedLightBegin: RED_ON_DEFAULT,
-				deletedLightEnd: RESET,
-				insertedLightBegin: GREEN_ON_DEFAULT,
-				insertedLightEnd: RESET,
+			{	minusBegin: styles?.minusBegin ?? BOLD_RED_ON_DEFAULT,
+				minusEnd: styles?.minusEnd ?? '',
+				plusBegin: styles?.plusBegin ?? BOLD_GREEN_ON_DEFAULT,
+				plusEnd: styles?.plusEnd ?? '',
+				deletedBegin: styles?.deletedBegin ?? WHITE_ON_RED,
+				deletedEnd: styles?.deletedEnd ?? RESET,
+				insertedBegin: styles?.insertedBegin ?? WHITE_ON_GREEN,
+				insertedEnd: styles?.insertedEnd ?? RESET,
+				deletedLightBegin: styles?.deletedLightBegin ?? RED_ON_DEFAULT,
+				deletedLightEnd: styles?.deletedLightEnd ?? RESET,
+				insertedLightBegin: styles?.insertedLightBegin ?? GREEN_ON_DEFAULT,
+				insertedLightEnd: styles?.insertedLightEnd ?? RESET,
 			}
 		);
 	}
 }
 
 export class DiffHtml extends DiffText
-{	constructor(options?: DiffTextOptions)
+{	constructor(options?: DiffTextOptions, styles?: DiffTextStyles)
 	{	super
 		(	options,
-			{	minusBegin: '<b style="color:red">',
-				minusEnd: '</b>',
-				plusBegin: '<b style="color:green">',
-				plusEnd: '</b>',
-				deletedBegin: '<span style="background-color:red; color:white">',
-				deletedEnd: '</span>',
-				insertedBegin: '<span style="background-color:green; color:white">',
-				insertedEnd: '</span>',
-				deletedLightBegin: '<span style="color:red">',
-				deletedLightEnd: '</span>',
-				insertedLightBegin: '<span style="color:green">',
-				insertedLightEnd: '</span>',
+			{	minusBegin: styles?.minusBegin ?? '<b style="color:red">',
+				minusEnd: styles?.minusEnd ?? '</b>',
+				plusBegin: styles?.plusBegin ?? '<b style="color:green">',
+				plusEnd: styles?.plusEnd ?? '</b>',
+				deletedBegin: styles?.deletedBegin ?? '<span style="background-color:red; color:white">',
+				deletedEnd: styles?.deletedEnd ?? '</span>',
+				insertedBegin: styles?.insertedBegin ?? '<span style="background-color:green; color:white">',
+				insertedEnd: styles?.insertedEnd ?? '</span>',
+				deletedLightBegin: styles?.deletedLightBegin ?? '<span style="color:red">',
+				deletedLightEnd: styles?.deletedLightEnd ?? '</span>',
+				insertedLightBegin: styles?.insertedLightBegin ?? '<span style="color:green">',
+				insertedLightEnd: styles?.insertedLightEnd ?? '</span>',
 			}
 		);
 	}
