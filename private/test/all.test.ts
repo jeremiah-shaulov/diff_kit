@@ -21,16 +21,79 @@ const STYLE =
 	insertedLightEnd: '</i>',
 };
 
+class DiffTextTest extends DiffText
+{	#posLeft = 0;
+	#posRight = 0;
+	
+	addEqual(part: string)
+	{	assertEquals(this.#posLeft, this.posLeft);
+		assertEquals(this.#posRight, this.posRight);
+		super.addEqual(part);
+		this.#posLeft += part.length;
+		this.#posRight += part.length;
+	}
+
+	addDiff(partLeft: string, partRight: string)
+	{	assertEquals(this.#posLeft, this.posLeft);
+		assertEquals(this.#posRight, this.posRight);
+		super.addDiff(partLeft, partRight);
+		this.#posLeft += partLeft.length;
+		this.#posRight += partRight.length;
+	}
+}
+
+class DiffTermTest extends DiffTerm
+{	#posLeft = 0;
+	#posRight = 0;
+	
+	addEqual(part: string)
+	{	assertEquals(this.#posLeft, this.posLeft);
+		assertEquals(this.#posRight, this.posRight);
+		super.addEqual(part);
+		this.#posLeft += part.length;
+		this.#posRight += part.length;
+	}
+
+	addDiff(partLeft: string, partRight: string)
+	{	assertEquals(this.#posLeft, this.posLeft);
+		assertEquals(this.#posRight, this.posRight);
+		super.addDiff(partLeft, partRight);
+		this.#posLeft += partLeft.length;
+		this.#posRight += partRight.length;
+	}
+}
+
+class DiffHtmlTest extends DiffHtml
+{	#posLeft = 0;
+	#posRight = 0;
+	
+	addEqual(part: string)
+	{	assertEquals(this.#posLeft, this.posLeft);
+		assertEquals(this.#posRight, this.posRight);
+		super.addEqual(part);
+		this.#posLeft += part.length;
+		this.#posRight += part.length;
+	}
+
+	addDiff(partLeft: string, partRight: string)
+	{	assertEquals(this.#posLeft, this.posLeft);
+		assertEquals(this.#posRight, this.posRight);
+		super.addDiff(partLeft, partRight);
+		this.#posLeft += partLeft.length;
+		this.#posRight += partRight.length;
+	}
+}
+
 Deno.test
 (	'All',
 	() =>
-	{	assertEquals(diff('', '', new DiffText), '');
-		assertEquals(diff('', '', new DiffTerm), '');
-		assertEquals(diff('', '', new DiffHtml), '');
-		assertEquals(diff('a', '', new DiffText({indentWidth: 2}, STYLE)), '<->-</-> <del>a</del>');
-		assertEquals(diff('', 'b', new DiffText({indentWidth: 2}, STYLE)), '<+>+</+> <ins>b</ins>');
-		assertEquals(diff('a\r\nb', 'a\r\nb', new DiffText({indentWidth: 2}, STYLE)), '  a\r\n  b');
-		assertEquals(diff('1\r\na\r\nb', '2\r\na\r\nb', new DiffText({indentWidth: 2}, STYLE)), '<->-</-> <del>1</del>\r\n<+>+</+> <ins>2</ins>\r\n  a\r\n  b');
+	{	assertEquals(diff('', '', new DiffTextTest), '');
+		assertEquals(diff('', '', new DiffTermTest), '');
+		assertEquals(diff('', '', new DiffHtmlTest), '');
+		assertEquals(diff('a', '', new DiffTextTest({indentWidth: 2}, STYLE)), '<->-</-> <del>a</del>');
+		assertEquals(diff('', 'b', new DiffTextTest({indentWidth: 2}, STYLE)), '<+>+</+> <ins>b</ins>');
+		assertEquals(diff('a\r\nb', 'a\r\nb', new DiffTextTest({indentWidth: 2}, STYLE)), '  a\r\n  b');
+		assertEquals(diff('1\r\na\r\nb', '2\r\na\r\nb', new DiffTextTest({indentWidth: 2}, STYLE)), '<->-</-> <del>1</del>\r\n<+>+</+> <ins>2</ins>\r\n  a\r\n  b');
 		{	const left =
 			`	abc
 				def
@@ -39,7 +102,7 @@ Deno.test
 			`	abc
 				d2ef
 			`;
-			const d = diff(unindent(left), unindent(right), new DiffTerm({indentWidth: 2}, STYLE));
+			const d = diff(unindent(left), unindent(right), new DiffTermTest({indentWidth: 2}, STYLE));
 			assertEquals
 			(	d,
 				'  '+
@@ -59,7 +122,7 @@ Deno.test
 			`	abc
 				d2ef
 			`;
-			const d = diff(unindent(left), unindent(right), new DiffTerm({indentWidth: 2}));
+			const d = diff(unindent(left), unindent(right), new DiffTermTest({indentWidth: 2}));
 			assertEquals
 			(	d,
 				'  '+
@@ -79,7 +142,7 @@ Deno.test
 			`	abc
 				d2ef
 			`;
-			const d = diff(unindent(left), unindent(right), new DiffText({indentWidth: 2}));
+			const d = diff(unindent(left), unindent(right), new DiffTextTest({indentWidth: 2}));
 			assertEquals
 			(	d,
 				'  '+
@@ -99,7 +162,7 @@ Deno.test
 			`	abc
 				d2ef
 			`;
-			const d = diff(unindent(left), unindent(right), new DiffText);
+			const d = diff(unindent(left), unindent(right), new DiffTextTest);
 			assertEquals
 			(	d, `\tabc\n-\tdef\n+\td2ef`
 			);
@@ -112,7 +175,7 @@ Deno.test
 			`	abc
 				d2ef
 			`;
-			const d = diff(unindent(left), unindent(right), new DiffHtml({indentWidth: 2}, STYLE));
+			const d = diff(unindent(left), unindent(right), new DiffHtmlTest({indentWidth: 2}, STYLE));
 			assertEquals
 			(	d,
 				'<div style="white-space:pre">  '+
@@ -132,7 +195,7 @@ Deno.test
 			`	abc
 				d2ef
 			`;
-			const d = diff(unindent(left), unindent(right), new DiffHtml({indentWidth: 2}));
+			const d = diff(unindent(left), unindent(right), new DiffHtmlTest({indentWidth: 2}));
 			assertEquals
 			(	d,
 				'<div style="white-space:pre">  '+
@@ -170,7 +233,7 @@ Deno.test
 			`	abc
 				def
 			`;
-			const d = diff(unindent(left), unindent(right), new DiffText({indentWidth: 2}, STYLE));
+			const d = diff(unindent(left), unindent(right), new DiffTextTest({indentWidth: 2}, STYLE));
 			assertEquals
 			(	d,
 				'  '+
@@ -208,7 +271,7 @@ Deno.test
 			`	abc
 				defghi
 			`;
-			const d = diff(unindent(left), unindent(right), new DiffText({indentWidth: 2}, STYLE));
+			const d = diff(unindent(left), unindent(right), new DiffTextTest({indentWidth: 2}, STYLE));
 			assertEquals
 			(	d,
 				'  '+
@@ -229,7 +292,7 @@ Deno.test
 				def
 				ghi
 			`;
-			const d = diff(unindent(left), unindent(right), new DiffText({indentWidth: 2}, STYLE));
+			const d = diff(unindent(left), unindent(right), new DiffTextTest({indentWidth: 2}, STYLE));
 			assertEquals
 			(	d,
 				'  '+
@@ -250,7 +313,7 @@ Deno.test
 			`	abc2
 				def
 			`;
-			const d = diff(unindent(left), unindent(right), new DiffText({indentWidth: 2}, STYLE));
+			const d = diff(unindent(left), unindent(right), new DiffTextTest({indentWidth: 2}, STYLE));
 			assertEquals
 			(	d,
 				unindent
@@ -269,7 +332,7 @@ Deno.test
 			`	abc
 				def
 			`;
-			const d = diff(unindent(left), unindent(right), new DiffText({indentWidth: 2}, STYLE));
+			const d = diff(unindent(left), unindent(right), new DiffTextTest({indentWidth: 2}, STYLE));
 			assertEquals
 			(	d,
 				unindent
@@ -288,7 +351,7 @@ Deno.test
 			`	1abc
 				def
 			`;
-			const d = diff(unindent(left), unindent(right), new DiffText({indentWidth: 2}, STYLE));
+			const d = diff(unindent(left), unindent(right), new DiffTextTest({indentWidth: 2}, STYLE));
 			assertEquals
 			(	d,
 				unindent
@@ -308,7 +371,7 @@ Deno.test
 				abc
 				def
 			`;
-			const d = diff(unindent(left), unindent(right), new DiffText({indentWidth: 2}, STYLE));
+			const d = diff(unindent(left), unindent(right), new DiffTextTest({indentWidth: 2}, STYLE));
 			assertEquals
 			(	d,
 				unindent
@@ -327,7 +390,7 @@ Deno.test
 			`	abc
 				def
 			`;
-			const d = diff(unindent(left), unindent(right), new DiffText({indentWidth: 2}, STYLE));
+			const d = diff(unindent(left), unindent(right), new DiffTextTest({indentWidth: 2}, STYLE));
 			assertEquals
 			(	d,
 				unindent
@@ -347,7 +410,7 @@ Deno.test
 			`	abc
 				def
 			`;
-			const d = diff(unindent(left), unindent(right), new DiffText({indentWidth: 2}, STYLE));
+			const d = diff(unindent(left), unindent(right), new DiffTextTest({indentWidth: 2}, STYLE));
 			assertEquals
 			(	d,
 				unindent
@@ -366,7 +429,7 @@ Deno.test
 			`	abc
 				d*e*f
 			`;
-			const d = diff(unindent(left), unindent(right), new DiffText({indentWidth: 2}, STYLE));
+			const d = diff(unindent(left), unindent(right), new DiffTextTest({indentWidth: 2}, STYLE));
 			assertEquals
 			(	d,
 				'  '+
@@ -386,7 +449,7 @@ Deno.test
 			`	abc
 				xyz
 			`;
-			const d = diff(unindent(left), unindent(right), new DiffText({indentWidth: 2}, STYLE));
+			const d = diff(unindent(left), unindent(right), new DiffTextTest({indentWidth: 2}, STYLE));
 			assertEquals
 			(	d,
 				'  '+
@@ -408,7 +471,7 @@ Deno.test
 				xyz
 				1
 			`;
-			const d = diff(unindent(left), unindent(right), new DiffText({indentWidth: 2}, STYLE));
+			const d = diff(unindent(left), unindent(right), new DiffTextTest({indentWidth: 2}, STYLE));
 			assertEquals
 			(	d,
 				'  '+
@@ -427,7 +490,7 @@ Deno.test
 			const right =
 			`	xyz
 			`;
-			const d = diff(unindent(left), unindent(right), new DiffText({indentWidth: 2}, STYLE));
+			const d = diff(unindent(left), unindent(right), new DiffTextTest({indentWidth: 2}, STYLE));
 			assertEquals
 			(	d,
 				unindent
@@ -443,7 +506,7 @@ Deno.test
 			const right =
 			`	abbbc
 			`;
-			const d = diff(unindent(left), unindent(right), new DiffText({indentWidth: 2}, STYLE));
+			const d = diff(unindent(left), unindent(right), new DiffTextTest({indentWidth: 2}, STYLE));
 			assertEquals
 			(	d,
 				unindent
@@ -459,7 +522,7 @@ Deno.test
 			const right =
 			`	1ababab1
 			`;
-			const d = diff(unindent(left), unindent(right), new DiffText({indentWidth: 2}, STYLE));
+			const d = diff(unindent(left), unindent(right), new DiffTextTest({indentWidth: 2}, STYLE));
 			assertEquals
 			(	d,
 				unindent
@@ -475,7 +538,7 @@ Deno.test
 			const right =
 			`	2abab
 			`;
-			const d = diff(unindent(left), unindent(right), new DiffText({indentWidth: 2}, STYLE));
+			const d = diff(unindent(left), unindent(right), new DiffTextTest({indentWidth: 2}, STYLE));
 			assertEquals
 			(	d,
 				unindent
@@ -491,7 +554,7 @@ Deno.test
 			const right =
 			`	abc
 			`;
-			const d = diff(unindent(left), unindent(right), new DiffText({indentWidth: 2}, STYLE));
+			const d = diff(unindent(left), unindent(right), new DiffTextTest({indentWidth: 2}, STYLE));
 			assertEquals
 			(	d,
 				unindent
@@ -507,7 +570,7 @@ Deno.test
 			const right =
 			`	1abacab1
 			`;
-			const d = diff(unindent(left), unindent(right), new DiffText({indentWidth: 2}, STYLE));
+			const d = diff(unindent(left), unindent(right), new DiffTextTest({indentWidth: 2}, STYLE));
 			assertEquals
 			(	d,
 				unindent

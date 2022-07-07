@@ -10,7 +10,12 @@ const CR = 13;
 const LF = 10;
 
 export class DiffHandler
-{	protected result = '';
+{	posLeft = 0;
+	posRight = 0;
+	lenLeft = 0;
+	lenRight = 0;
+
+	protected result = '';
 
 	addEqual(part: string)
 	{	this.result += part;

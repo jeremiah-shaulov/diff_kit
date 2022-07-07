@@ -9,6 +9,10 @@ export interface DiffSubj
 export function diff(left: DiffSubj, right: DiffSubj, diffHandler: DiffHandler=new DiffTerm({indentWidth: 4}))
 {	const lLen = left.length;
 	const rLen = right.length;
+	diffHandler.lenLeft = lLen;
+	diffHandler.lenRight = rLen;
+	diffHandler.posLeft = 0;
+	diffHandler.posRight = 0;
 	let l = 0;
 	let r = 0;
 	let pos = 0;
@@ -79,21 +83,29 @@ export function diff(left: DiffSubj, right: DiffSubj, diffHandler: DiffHandler=n
 			}
 			// add equal part?
 			if (l-bothDiffLen > pos)
-			{	diffHandler.addEqual(left.slice(pos, l-bothDiffLen));
+			{	diffHandler.posLeft = pos;
+				diffHandler.posRight = r-(l - pos);
+				diffHandler.addEqual(left.slice(pos, l-bothDiffLen));
 			}
 			// add non-equal part
 			if (len == 0)
-			{	diffHandler.addDiff(left.slice(l-bothDiffLen, lLen), right.slice(r-bothDiffLen, rLen));
+			{	diffHandler.posLeft = l-bothDiffLen;
+				diffHandler.posRight = r-bothDiffLen;
+				diffHandler.addDiff(left.slice(l-bothDiffLen, lLen), right.slice(r-bothDiffLen, rLen));
 				pos = l = lLen;
 				r = rLen;
 				break;
 			}
 			if (isExtra)
 			{	if (bothDiffLen > 0)
-				{	diffHandler.addDiff(left.slice(l-bothDiffLen, l+from), right.slice(r-bothDiffLen, r));
+				{	diffHandler.posLeft = l-bothDiffLen;
+					diffHandler.posRight = r-bothDiffLen;
+					diffHandler.addDiff(left.slice(l-bothDiffLen, l+from), right.slice(r-bothDiffLen, r));
 				}
 				else
-				{	diffHandler.addDiff(left.slice(l, l+from), '');
+				{	diffHandler.posLeft = l;
+					diffHandler.posRight = r;
+					diffHandler.addDiff(left.slice(l, l+from), '');
 				}
 				l += from;
 				pos = l;
@@ -102,10 +114,14 @@ export function diff(left: DiffSubj, right: DiffSubj, diffHandler: DiffHandler=n
 			}
 			else
 			{	if (bothDiffLen > 0)
-				{	diffHandler.addDiff(left.slice(l-bothDiffLen, l), right.slice(r-bothDiffLen, r+from));
+				{	diffHandler.posLeft = l-bothDiffLen;
+					diffHandler.posRight = r-bothDiffLen;
+					diffHandler.addDiff(left.slice(l-bothDiffLen, l), right.slice(r-bothDiffLen, r+from));
 				}
 				else
-				{	diffHandler.addDiff('', right.slice(r, r+from));
+				{	diffHandler.posLeft = l;
+					diffHandler.posRight = r;
+					diffHandler.addDiff('', right.slice(r, r+from));
 				}
 				r += from;
 				pos = l;
@@ -115,8 +131,12 @@ export function diff(left: DiffSubj, right: DiffSubj, diffHandler: DiffHandler=n
 		}
 	}
 	if (l > pos)
-	{	diffHandler.addEqual(left.slice(pos, l));
+	{	diffHandler.posLeft = pos;
+		diffHandler.posRight = r-(l - pos);
+		diffHandler.addEqual(left.slice(pos, l));
 	}
+	diffHandler.posLeft = l;
+	diffHandler.posRight = r;
 	if (l < lLen)
 	{	diffHandler.addDiff(left.slice(l, lLen), '');
 	}
