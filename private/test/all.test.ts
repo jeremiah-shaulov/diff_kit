@@ -298,9 +298,29 @@ Deno.test
 				'  '+
 				unindent
 				(	` abc
-					<->-</-> <d>def</d>
-					<+>+</+> <i>def</i>
+					  def
 					<+>+</+> <ins>ghi</ins>
+					`
+				)
+			);
+		}
+		{	const left =
+			`	abc
+				def
+				ghi
+			`;
+			const right =
+			`	abc
+				def
+			`;
+			const d = diff(unindent(left), unindent(right), new DiffTextTest({indentWidth: 2}, STYLE));
+			assertEquals
+			(	d,
+				'  '+
+				unindent
+				(	` abc
+					  def
+					<->-</-> <del>ghi</del>
 					`
 				)
 			);

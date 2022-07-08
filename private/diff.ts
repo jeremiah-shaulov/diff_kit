@@ -1,18 +1,13 @@
+import type {DiffSubj} from './diff_handler.ts';
 import {DiffHandler, DiffTerm} from './diff_handler.ts';
 
-export interface DiffSubj
-{	readonly length: number;
-	charCodeAt(i: number): number;
-	slice(from: number, to: number): string;
-}
-
 export function diff(left: DiffSubj, right: DiffSubj, diffHandler: DiffHandler=new DiffTerm({indentWidth: 4}))
-{	const lLen = left.length;
-	const rLen = right.length;
-	diffHandler.lenLeft = lLen;
-	diffHandler.lenRight = rLen;
+{	diffHandler.left = left;
+	diffHandler.right = right;
 	diffHandler.posLeft = 0;
 	diffHandler.posRight = 0;
+	const lLen = left.length;
+	const rLen = right.length;
 	let l = 0;
 	let r = 0;
 	let pos = 0;
