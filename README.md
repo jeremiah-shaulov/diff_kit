@@ -4,7 +4,11 @@ Deno lib that compares 2 strings and generates result like assertEquals(), also 
 ## Example
 
 ```ts
-import {diff, DiffText, DiffTerm, DiffHtml} from 'https://deno.land/x/diff_kit@v0.0.5/mod.ts';
+// To download and run this example:
+// curl 'https://raw.githubusercontent.com/jeremiah-shaulov/diff_kit/main/README.md' | perl -ne '$y=$1 if /^```(ts\\b)?/;  print $_ if $y&&$m;  $m=$y&&($m||m~^// deno .*?/example1.ts~)' > /tmp/example1.ts
+// deno run /tmp/example1.ts
+
+import {diff, DiffText, DiffTerm, DiffHtml} from 'https://deno.land/x/diff_kit@v1.0.0/mod.ts';
 
 const left =
 `abc
@@ -36,7 +40,7 @@ console.log(result);
 
 ## diff()
 
-The main function that this module is exporting is called `diff()`.
+The main function that this module exports is called `diff()`.
 
 ```ts
 interface DiffSubj
@@ -45,18 +49,14 @@ interface DiffSubj
 	slice(from: number, to: number): string;
 }
 
-function diff(left: DiffSubj, right: DiffSubj, diffHandler: DiffHandler=new DiffTerm({indentWidth: 4}))
+function diff(left: DiffSubj, right: DiffSubj, diffHandler: DiffHandler=new DiffTerm({indentWidth: 4})): string
 ```
 
-The `DiffSubj` interface is string-compatible, and the most usual use case is to pass strings to the `diff()` function.
+`DiffSubj` interface is string-compatible, and the most usual use case is to pass strings to the `diff()` function.
 
-## Extending this library
+## How the result is generated
 
-This library contains 3 classes that provide visualization of the diff result: `DiffText`, `DiffTerm` and `DiffHtml`. They are subclasses of `DiffHandler`.
-
-If you want to generate the result in a different way you can create your own subclass of `DiffHandler`.
-
-The `DiffHandler` class has exactly this implementation:
+3rd parameter of `diff()` is of `DiffHandler` type. `DiffHandler` has exactly this implementation:
 
 ```ts
 class DiffHandler
@@ -90,15 +90,120 @@ class DiffHandler
 }
 ```
 
-It can be used as parameter to `diff()` without subclassing, and so the very basic plain text diff will be generated (deleted parts will be marked with `[-]...[=]`, inserted parts with `[+]...[=]`, and changed parts with `[-]...[+]...[=]`).
+When an instance of `DiffHandler` is used as a parameter to `diff()`, the very basic plain text diff is generated: deleted parts will be marked with `[-]...[=]`, inserted parts with `[+]...[=]`, and changed parts with `[-]...[+]...[=]`.
 
-When passing an instance of `DiffHandler` (or it's subclass) to the 3rd parameter of `diff()`, the following properties and methods of the handler get called:
-- `left` and `right` are set to the first and the second parameter of the `diff()`.
-- `addEqual(part: string)` add a text part that is the same for both the left-hand and the right-hand side of the diff.
-- `addDiff(partLeft: string, partRight: string)` add part that is different. One of `partLeft` or `partRight` can be empty (but not both).
+```ts
+// To download and run this example:
+// curl 'https://raw.githubusercontent.com/jeremiah-shaulov/diff_kit/main/README.md' | perl -ne '$y=$1 if /^```(ts\\b)?/;  print $_ if $y&&$m;  $m=$y&&($m||m~^// deno .*?/example2.ts~)' > /tmp/example2.ts
+// deno run /tmp/example2.ts
+
+import {diff, DiffHandler} from 'https://deno.land/x/diff_kit@v1.0.0/mod.ts';
+
+const left =
+`abc
+def
+`;
+const right =
+`abc
+de*f
+`;
+
+console.log(diff(left, right, new DiffHandler));
+```
+
+Result:
+
+```
+abc
+de[-]*[=]f
+```
+
+`diff()` calls the following methods and properties of `DiffHandler` to produce the result:
+- `left` and `right` properties are set to the first and the second `diff()` parameter.
+- `addEqual(part: string)` is called to add a text part that is the same for both the left-hand and the right-hand side of the diff.
+- `addDiff(partLeft: string, partRight: string)` is called to add a part that is different. One of `partLeft` or `partRight` can be empty (but not both).
 - Before calling `addEqual()` and `addDiff()`, `posLeft` and `posRight` properties are set to current positions in the `left` and `right`.
-- `toString()` - at last, the object is converted to string to get the result.
+- `toString()` - at last, the object is converted to string to produce the result.
 
-The same method is not called twice in sequence. That is, for example, after `addEqual()` will be called either `addDiff()` or `toString()`.
+The same method is not called twice in sequence. That is, for example, after `addEqual()` either `addDiff()` or `toString()` will be called.
 
-So you can create an extension to this library, and use it in your project, or to publish it to `deno.land/x`. It's recommended to prefix the library name with `diff_kit_ex_`.
+To produce result in different format, need to use a subclass of `DiffHandler` that has different implementation of `addEqual()` and `addDiff()`.
+
+This library contains 3 classes that provide visualization of the diff result:
+- `DiffText` - generates line-by-line comparison in plain text.
+- `DiffTerm` - generates line-by-line comparison with highlighting different parts using terminal colors. This is very similar to standard `assertEquals()` function.
+- `DiffHtml` - like the previous, but generates HTML.
+
+All these classes provide option to adjust colors and markup:
+
+```ts
+class DiffText extends DiffHandler
+{	constructor(options?: DiffTextOptions, styles?: DiffTextStyles);
+}
+class DiffTerm extends DiffText
+{	constructor(options?: DiffTextOptions, styles?: DiffTextStyles);
+}
+class DiffHtml extends DiffText
+{	constructor(options?: DiffTextOptions, styles?: DiffTextStyles);
+}
+
+interface DiffTextOptions
+{	/**	Number of spaces to be used as indent: from 0 to 8 (inclusive), or -1 for TAB.
+	 **/
+	indentWidth?: number;
+}
+
+interface DiffTextStyles
+{	/**	What to insert before "-" char that denotes line deletion. Like `<b style="color:red">`
+	 **/
+	minusBegin?: string;
+
+	/**	What to insert after "-" char that denotes line deletion. Like `</b>`
+	 **/
+	minusEnd?: string;
+
+	/**	What to insert before "+" char that denotes line insertion. Like `<b style="color:green">`
+	 **/
+	plusBegin?: string;
+
+	/**	What to insert after "+" char that denotes line insertion. Like `</b>`
+	 **/
+	plusEnd?: string;
+
+	/**	What to insert in the beginning of deleted line. Like `<span style="color:red">`
+	 **/
+	deletedLightBegin?: string;
+
+	/**	What to insert in the end of deleted line. Like `</span>`
+	 **/
+	deletedLightEnd?: string;
+
+	/**	What to insert in the beginning of inserted line. Like `<span style="color:green">`
+	 **/
+	insertedLightBegin?: string;
+
+	/**	What to insert in the end of inserted line. Like `</span>`
+	 **/
+	insertedLightEnd?: string;
+
+	/**	What to insert where actual deleted chars on the line are starting. Like `<span style="background-color:red; color:white">`
+	 **/
+	deletedBegin?: string;
+
+	/**	What to insert where actual deleted chars on the line are ending. Like `</span>`
+	 **/
+	deletedEnd?: string;
+
+	/**	What to insert where actual inserted chars on the line are starting. Like `<span style="background-color:green; color:white">`
+	 **/
+	insertedBegin?: string;
+	
+	/**	What to insert where actual inserted chars on the line are ending. Like `</span>`
+	 **/
+	insertedEnd?: string;
+}
+```
+
+## Extending this library
+
+You can create your own subclass of `DiffHandler` to generate the result in different form, and use it in your project, or to publish it to `deno.land/x`. It's recommended to prefix the library name with `diff_kit_ex_`.

@@ -46,21 +46,62 @@ export class DiffHandler
 }
 
 export interface DiffTextOptions
-{	indentWidth?: number,
+{	// Properties:
+
+	/**	Number of spaces to be used as indent: from 0 to 8 (inclusive), or -1 for TAB.
+	 **/
+	indentWidth?: number;
 }
 
 export interface DiffTextStyles
-{	minusBegin?: string;
+{	// Properties:
+
+	/**	What to insert before "-" char that denotes line deletion. Like `<b style="color:red">`
+	 **/
+	minusBegin?: string;
+
+	/**	What to insert after "-" char that denotes line deletion. Like `</b>`
+	 **/
 	minusEnd?: string;
+
+	/**	What to insert before "+" char that denotes line insertion. Like `<b style="color:green">`
+	 **/
 	plusBegin?: string;
+
+	/**	What to insert after "+" char that denotes line insertion. Like `</b>`
+	 **/
 	plusEnd?: string;
+
+	/**	What to insert in the beginning of deleted line. Like `<span style="color:red">`
+	 **/
 	deletedLightBegin?: string;
-	deletedBegin?: string;
+
+	/**	What to insert in the end of deleted line. Like `</span>`
+	 **/
 	deletedLightEnd?: string;
-	deletedEnd?: string;
+
+	/**	What to insert in the beginning of inserted line. Like `<span style="color:green">`
+	 **/
 	insertedLightBegin?: string;
-	insertedBegin?: string;
+
+	/**	What to insert in the end of inserted line. Like `</span>`
+	 **/
 	insertedLightEnd?: string;
+
+	/**	What to insert where actual deleted chars on the line are starting. Like `<span style="background-color:red; color:white">`
+	 **/
+	deletedBegin?: string;
+
+	/**	What to insert where actual deleted chars on the line are ending. Like `</span>`
+	 **/
+	deletedEnd?: string;
+
+	/**	What to insert where actual inserted chars on the line are starting. Like `<span style="background-color:green; color:white">`
+	 **/
+	insertedBegin?: string;
+
+	/**	What to insert where actual inserted chars on the line are ending. Like `</span>`
+	 **/
 	insertedEnd?: string;
 }
 
