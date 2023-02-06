@@ -48,7 +48,7 @@ export class DiffHandler
 export interface DiffTextOptions
 {	// Properties:
 
-	/**	Number of spaces to be used as indent: from 0 to 8 (inclusive), or -1 for TAB.
+	/**	Number of spaces to be used as indent: from 0 to 10 (inclusive), or -1 for TAB.
 	 **/
 	indentWidth?: number;
 }
@@ -138,7 +138,7 @@ export class DiffText extends DiffHandler
 	{	super();
 
 		const indentWidth = options?.indentWidth ?? -1;
-		this.#addIndent = indentWidth>=0 && indentWidth<=8 ? ' '.repeat(indentWidth) : '\t';
+		this.#addIndent = indentWidth>=0 && indentWidth<=10 ? ' '.repeat(indentWidth) : '\t';
 
 		this.#minusBegin = styles?.minusBegin ?? '';
 		this.#minusEnd = styles?.minusEnd ?? '';

@@ -148,7 +148,7 @@ class DiffHtml extends DiffText
 }
 
 interface DiffTextOptions
-{	/**	Number of spaces to be used as indent: from 0 to 8 (inclusive), or -1 for TAB.
+{	/**	Number of spaces to be used as indent: from 0 to 10 (inclusive), or -1 for TAB.
 	 **/
 	indentWidth?: number;
 }
