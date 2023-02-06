@@ -120,7 +120,7 @@ de[-]*[=]f
 
 `diff()` calls the following methods and properties of `DiffHandler` to produce the result:
 - `left` and `right` properties are set to the first and the second `diff()` parameter.
-- `addEqual(part: string)` is called to add a text part that is the same for both the left-hand and the right-hand side of the diff.
+- `addEqual(part: string)` is called to add a text part that is the same for both the left-hand and the right-hand sides of the diff.
 - `addDiff(partLeft: string, partRight: string)` is called to add a part that is different. One of `partLeft` or `partRight` can be empty (but not both).
 - Before calling `addEqual()` and `addDiff()`, `posLeft` and `posRight` properties are set to current positions in the `left` and `right`.
 - `toString()` - at last, the object is converted to string to produce the result.
@@ -197,7 +197,7 @@ interface DiffTextStyles
 	/**	What to insert where actual inserted chars on the line are starting. Like `<span style="background-color:green; color:white">`
 	 **/
 	insertedBegin?: string;
-	
+
 	/**	What to insert where actual inserted chars on the line are ending. Like `</span>`
 	 **/
 	insertedEnd?: string;

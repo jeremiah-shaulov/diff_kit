@@ -1,10 +1,10 @@
-export const BOLD_RED_ON_DEFAULT = '\x1b[1;31m';
-export const RED_ON_DEFAULT = '\x1b[0;31m';
-export const WHITE_ON_RED = '\x1b[97;41m';
-export const BOLD_GREEN_ON_DEFAULT = '\x1b[1;32m';
-export const GREEN_ON_DEFAULT = '\x1b[0;32m';
-export const WHITE_ON_GREEN = '\x1b[97;42m';
-export const RESET = '\x1b[0m';
+export const BOLD_RED_ON_DEFAULT = '\x1B[0;1;31m';
+export const RED_ON_DEFAULT = '\x1B[0;31m';
+export const WHITE_ON_RED = '\x1B[0;97;41m';
+export const BOLD_GREEN_ON_DEFAULT = '\x1B[0;1;32m';
+export const GREEN_ON_DEFAULT = '\x1B[0;32m';
+export const WHITE_ON_GREEN = '\x1B[0;97;42m';
+export const RESET = '\x1B[0m';
 
 const CR = 13;
 const LF = 10;
@@ -136,7 +136,7 @@ export class DiffText extends DiffHandler
 
 	constructor(options?: DiffTextOptions, styles?: DiffTextStyles)
 	{	super();
-		
+
 		const indentWidth = options?.indentWidth ?? -1;
 		this.#addIndent = indentWidth>=0 && indentWidth<=8 ? ' '.repeat(indentWidth) : '\t';
 
@@ -285,7 +285,7 @@ export class DiffText extends DiffHandler
 	{	const c = subj.charCodeAt(nextPos);
 		return c==LF ? '\n' : c!=CR ? '' : subj.charCodeAt(nextPos+1)==LF ? '\r\n' : '\r';
 	}
-	
+
 	addDiff(partLeft: string, partRight: string)
 	{	this.#eqHalfLine = '';
 		// deno-lint-ignore no-var
@@ -305,7 +305,7 @@ export class DiffText extends DiffHandler
 			this.#right = '';
 		}
 	}
-	
+
 	#addOne(result: string, halfLine: string, part: string, partPos: number, indent: string, isLight: boolean, lightEnd: string, begin: string, end: string)
 	{	let from = partPos;
 		for (let i=partPos; i<part.length; i++)
