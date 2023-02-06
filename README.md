@@ -8,7 +8,7 @@ Deno lib that compares 2 strings and generates result like assertEquals(), also 
 // curl 'https://raw.githubusercontent.com/jeremiah-shaulov/diff_kit/main/README.md' | perl -ne '$y=$1 if /^```(ts\\b)?/;  print $_ if $y&&$m;  $m=$y&&($m||m~^// deno .*?/example1.ts~)' > /tmp/example1.ts
 // deno run /tmp/example1.ts
 
-import {diff, DiffText, DiffTerm, DiffHtml} from 'https://deno.land/x/diff_kit@v1.0.0/mod.ts';
+import {diff, DiffText, DiffTerm, DiffHtml} from 'https://deno.land/x/diff_kit@v1.0.1/mod.ts';
 
 const left =
 `abc
@@ -97,7 +97,7 @@ When an instance of `DiffHandler` is used as a parameter to `diff()`, the very b
 // curl 'https://raw.githubusercontent.com/jeremiah-shaulov/diff_kit/main/README.md' | perl -ne '$y=$1 if /^```(ts\\b)?/;  print $_ if $y&&$m;  $m=$y&&($m||m~^// deno .*?/example2.ts~)' > /tmp/example2.ts
 // deno run /tmp/example2.ts
 
-import {diff, DiffHandler} from 'https://deno.land/x/diff_kit@v1.0.0/mod.ts';
+import {diff, DiffHandler} from 'https://deno.land/x/diff_kit@v1.0.1/mod.ts';
 
 const left =
 `abc
