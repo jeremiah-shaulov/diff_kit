@@ -185,7 +185,9 @@ export class DiffText extends DiffHandler
 	}
 
 	addEqual(endPosLeft: number)
-	{	let {left, posLeft} = this;
+	{	const {left, posLeft} = this;
+		let from = posLeft;
+		let len = endPosLeft - from;
 		// maybe add to previous incomplete line
 		if (this.#leftHalfLine || this.#rightHalfLine)
 		{	let i;
@@ -198,7 +200,8 @@ export class DiffText extends DiffHandler
 					}
 					const halfLine = left.slice(posLeft, j);
 					const nl = left.slice(j, i);
-					posLeft = i;
+					from = i;
+					len = endPosLeft - from;
 					this.result += this.#left + this.#addIndentMinus + this.#leftHalfLine;
 					if (this.#leftHalfLineIsLight)
 					{	this.result += halfLine + this.#deletedLightEnd;
@@ -227,8 +230,8 @@ export class DiffText extends DiffHandler
 					this.result += nl;
 					this.#left = this.#leftHalfLine = '';
 					this.#right = this.#rightHalfLine = '';
-					if (i == endPosLeft)
-					{	const part = left.slice(posLeft, endPosLeft);
+					if (i-posLeft == len)
+					{	const part = left.slice(from, endPosLeft);
 						this.#leftHalfLine = this.#deletedLightBegin + part;
 						this.#rightHalfLine = this.#insertedLightBegin + part;
 						this.#eqHalfLine = part;
@@ -239,7 +242,7 @@ export class DiffText extends DiffHandler
 					break;
 				}
 			}
-			if (i == endPosLeft)
+			if (i-posLeft == len)
 			{	if (!this.#leftHalfLineIsLight)
 				{	if (this.#leftHalfLine)
 					{	this.#leftHalfLine += this.#deletedEnd;
@@ -254,32 +257,31 @@ export class DiffText extends DiffHandler
 					this.#rightHalfLine += this.#insertedLightBegin;
 					this.#rightHalfLineIsLight = true;
 				}
-				const part = left.slice(posLeft, endPosLeft);
+				const part = left.slice(from, endPosLeft);
 				this.#leftHalfLine += part;
 				this.#rightHalfLine += part;
 				return;
 			}
 		}
 		let subj = left;
-		const len = endPosLeft - posLeft;
 		// if left is at end and there's no newline chars at the end, and on the right side there's a newline following this part, then add the newline to the left side as well (otherwise the incomplete line on the left will be marked as deleted, and then inserted with newline)
-		if (this.posLeft+len == this.left.length)
+		if (posLeft+len == left.length)
 		{	const add = this.#takeCareOfNoNewlineAtEnd(this.right, this.posRight+len);
 			this.#curFromRight = add.length;
 			subj = left.slice(posLeft, endPosLeft) + add;
-			posLeft = 0;
+			from = 0;
 			endPosLeft = subj.length;
 		}
 		// the same for right
 		else if (this.posRight+len == this.right.length)
-		{	const add = this.#takeCareOfNoNewlineAtEnd(this.left, this.posLeft+len);
+		{	const add = this.#takeCareOfNoNewlineAtEnd(left, posLeft+len);
 			this.#curFromLeft = add.length;
 			subj = left.slice(posLeft, endPosLeft) + add;
-			posLeft = 0;
+			from = 0;
 			endPosLeft = subj.length;
 		}
 		// add part
-		const {result, halfLine} = this.#addOne(this.result, '', subj, posLeft, endPosLeft, this.#addIndent, false, '', '', '');
+		const {result, halfLine} = this.#addOne(this.result, '', subj, from, endPosLeft, this.#addIndent, false, '', '', '');
 		this.result = result;
 		if (halfLine)
 		{	this.#leftHalfLine = this.#deletedLightBegin + halfLine;
