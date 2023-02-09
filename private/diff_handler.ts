@@ -185,20 +185,20 @@ export class DiffText extends DiffHandler
 	}
 
 	addEqual(endPosLeft: number)
-	{	let part = this.left.slice(this.posLeft, endPosLeft);
+	{	let {left, posLeft} = this;
 		// maybe add to previous incomplete line
 		if (this.#leftHalfLine || this.#rightHalfLine)
 		{	let i;
-			for (i=0; i<part.length; i++)
-			{	const c = part.charCodeAt(i);
+			for (i=posLeft; i<endPosLeft; i++)
+			{	const c = left.charCodeAt(i);
 				if (c==CR || c==LF)
 				{	const j = i++;
-					if (c==CR && part.charCodeAt(i)==LF)
+					if (c==CR && left.charCodeAt(i)==LF)
 					{	i++;
 					}
-					const halfLine = part.slice(0, j);
-					const nl = part.slice(j, i);
-					part = part.slice(i);
+					const halfLine = left.slice(posLeft, j);
+					const nl = left.slice(j, i);
+					posLeft = i;
 					this.result += this.#left + this.#addIndentMinus + this.#leftHalfLine;
 					if (this.#leftHalfLineIsLight)
 					{	this.result += halfLine + this.#deletedLightEnd;
@@ -227,8 +227,9 @@ export class DiffText extends DiffHandler
 					this.result += nl;
 					this.#left = this.#leftHalfLine = '';
 					this.#right = this.#rightHalfLine = '';
-					if (i == part.length)
-					{	this.#leftHalfLine = this.#deletedLightBegin + part;
+					if (i == endPosLeft)
+					{	const part = left.slice(posLeft, endPosLeft);
+						this.#leftHalfLine = this.#deletedLightBegin + part;
 						this.#rightHalfLine = this.#insertedLightBegin + part;
 						this.#eqHalfLine = part;
 						this.#leftHalfLineIsLight = true;
@@ -238,7 +239,7 @@ export class DiffText extends DiffHandler
 					break;
 				}
 			}
-			if (i == part.length)
+			if (i == endPosLeft)
 			{	if (!this.#leftHalfLineIsLight)
 				{	if (this.#leftHalfLine)
 					{	this.#leftHalfLine += this.#deletedEnd;
@@ -253,25 +254,32 @@ export class DiffText extends DiffHandler
 					this.#rightHalfLine += this.#insertedLightBegin;
 					this.#rightHalfLineIsLight = true;
 				}
+				const part = left.slice(posLeft, endPosLeft);
 				this.#leftHalfLine += part;
 				this.#rightHalfLine += part;
 				return;
 			}
 		}
+		let subj = left;
+		const len = endPosLeft - posLeft;
 		// if left is at end and there's no newline chars at the end, and on the right side there's a newline following this part, then add the newline to the left side as well (otherwise the incomplete line on the left will be marked as deleted, and then inserted with newline)
-		if (this.posLeft+part.length == this.left.length)
-		{	const add = this.#takeCareOfNoNewlineAtEnd(this.right, this.posRight+part.length);
-			part += add;
+		if (this.posLeft+len == this.left.length)
+		{	const add = this.#takeCareOfNoNewlineAtEnd(this.right, this.posRight+len);
 			this.#curFromRight = add.length;
+			subj = left.slice(posLeft, endPosLeft) + add;
+			posLeft = 0;
+			endPosLeft = subj.length;
 		}
 		// the same for right
-		else if (this.posRight+part.length == this.right.length)
-		{	const add = this.#takeCareOfNoNewlineAtEnd(this.left, this.posLeft+part.length);
-			part += add;
+		else if (this.posRight+len == this.right.length)
+		{	const add = this.#takeCareOfNoNewlineAtEnd(this.left, this.posLeft+len);
 			this.#curFromLeft = add.length;
+			subj = left.slice(posLeft, endPosLeft) + add;
+			posLeft = 0;
+			endPosLeft = subj.length;
 		}
 		// add part
-		const {result, halfLine} = this.#addOne(this.result, '', part, 0, this.#addIndent, false, '', '', '');
+		const {result, halfLine} = this.#addOne(this.result, '', subj, posLeft, endPosLeft, this.#addIndent, false, '', '', '');
 		this.result = result;
 		if (halfLine)
 		{	this.#leftHalfLine = this.#deletedLightBegin + halfLine;
@@ -288,16 +296,14 @@ export class DiffText extends DiffHandler
 	}
 
 	addDiff(endPosLeft: number, endPosRight: number)
-	{	const partLeft = this.left.slice(this.posLeft, endPosLeft);
-		const partRight = this.right.slice(this.posRight, endPosRight);
-		this.#eqHalfLine = '';
+	{	this.#eqHalfLine = '';
 		// deno-lint-ignore no-var
-		var {result, halfLine, isLight} = this.#addOne(this.#left, this.#leftHalfLine, partLeft, this.#curFromLeft, this.#addIndentMinus, this.#leftHalfLineIsLight, this.#deletedLightEnd, this.#deletedBegin, this.#deletedEnd);
+		var {result, halfLine, isLight} = this.#addOne(this.#left, this.#leftHalfLine, this.left, this.posLeft+this.#curFromLeft, endPosLeft, this.#addIndentMinus, this.#leftHalfLineIsLight, this.#deletedLightEnd, this.#deletedBegin, this.#deletedEnd);
 		this.#left = result;
 		this.#leftHalfLine = halfLine;
 		this.#leftHalfLineIsLight = isLight;
 		// deno-lint-ignore no-var, no-redeclare
-		var {result, halfLine, isLight} = this.#addOne(this.#right, this.#rightHalfLine, partRight, this.#curFromRight, this.#addIndentPlus, this.#rightHalfLineIsLight, this.#insertedLightEnd, this.#insertedBegin, this.#insertedEnd);
+		var {result, halfLine, isLight} = this.#addOne(this.#right, this.#rightHalfLine, this.right, this.posRight+this.#curFromRight, endPosRight, this.#addIndentPlus, this.#rightHalfLineIsLight, this.#insertedLightEnd, this.#insertedBegin, this.#insertedEnd);
 		this.#right = result;
 		this.#rightHalfLine = halfLine;
 		this.#rightHalfLineIsLight = isLight;
@@ -309,17 +315,17 @@ export class DiffText extends DiffHandler
 		}
 	}
 
-	#addOne(result: string, halfLine: string, part: string, partPos: number, indent: string, isLight: boolean, lightEnd: string, begin: string, end: string)
+	#addOne(result: string, halfLine: string, subj: DiffSubj, partPos: number, partEndPos: number, indent: string, isLight: boolean, lightEnd: string, begin: string, end: string)
 	{	let from = partPos;
-		for (let i=partPos; i<part.length; i++)
-		{	const c = part.charCodeAt(i);
+		for (let i=partPos; i<partEndPos; i++)
+		{	const c = subj.charCodeAt(i);
 			if (c==CR || c==LF)
 			{	const j = i++;
-				if (c==CR && part.charCodeAt(i)==LF)
+				if (c==CR && subj.charCodeAt(i)==LF)
 				{	i++;
 				}
 				result += indent;
-				let add = part.slice(from, j);
+				let add = subj.slice(from, j);
 				if (halfLine)
 				{	result += halfLine;
 					halfLine = '';
@@ -335,11 +341,11 @@ export class DiffText extends DiffHandler
 				if (add)
 				{	result += begin + add + end;
 				}
-				result += part.slice(j, i);
+				result += subj.slice(j, i);
 				from = i;
 			}
 		}
-		const halfLine2 = part.slice(from);
+		const halfLine2 = subj.slice(from, partEndPos);
 		if (halfLine2)
 		{	if (halfLine)
 			{	if (isLight)

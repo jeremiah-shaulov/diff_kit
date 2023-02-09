@@ -1,8 +1,8 @@
 import type {DiffSubj} from './diff_handler.ts';
 import {DiffHandler, DiffTerm} from './diff_handler.ts';
 
-const C_CR = '\r'.charCodeAt(0);
-const C_LF = '\n'.charCodeAt(0);
+const CR = 13;
+const LF = 10;
 
 export function diff(left: DiffSubj, right: DiffSubj, diffHandler: DiffHandler=new DiffTerm({indentWidth: 4}))
 {	diffHandler.left = left;
@@ -88,7 +88,7 @@ export function diff(left: DiffSubj, right: DiffSubj, diffHandler: DiffHandler=n
 				if (bothDiffLen==0 && len!=0)
 				{	// if it doesn't matter, shift the difference to line start
 					let c;
-					while (endPos>pos && (c = left.charCodeAt(endPos-1))!=C_CR && c!=C_LF && c==right.charCodeAt(r+from-1))
+					while (endPos>pos && (c = left.charCodeAt(endPos-1))!=CR && c!=LF && c==right.charCodeAt(r+from-1))
 					{	endPos--;
 						endPosRight--;
 						l--;

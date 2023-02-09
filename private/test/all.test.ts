@@ -26,22 +26,19 @@ class DiffTextTest extends DiffText
 	#posRight = 0;
 
 	addEqual(endPosLeft: number)
-	{	const part = this.left.slice(this.posLeft, endPosLeft);
-		assertEquals(this.#posLeft, this.posLeft);
+	{	assertEquals(this.#posLeft, this.posLeft);
 		assertEquals(this.#posRight, this.posRight);
 		super.addEqual(endPosLeft);
-		this.#posLeft += part.length;
-		this.#posRight += part.length;
+		this.#posLeft += endPosLeft - this.posLeft;
+		this.#posRight += endPosLeft - this.posLeft;
 	}
 
 	addDiff(endPosLeft: number, endPosRight: number)
-	{	const partLeft = this.left.slice(this.posLeft, endPosLeft);
-		const partRight = this.right.slice(this.posRight, endPosRight);
-		assertEquals(this.#posLeft, this.posLeft);
+	{	assertEquals(this.#posLeft, this.posLeft);
 		assertEquals(this.#posRight, this.posRight);
 		super.addDiff(endPosLeft, endPosRight);
-		this.#posLeft += partLeft.length;
-		this.#posRight += partRight.length;
+		this.#posLeft += endPosLeft - this.posLeft;
+		this.#posRight += endPosRight - this.posRight;
 	}
 }
 
@@ -50,22 +47,19 @@ class DiffTermTest extends DiffTerm
 	#posRight = 0;
 
 	addEqual(endPosLeft: number)
-	{	const part = this.left.slice(this.posLeft, endPosLeft);
-		assertEquals(this.#posLeft, this.posLeft);
+	{	assertEquals(this.#posLeft, this.posLeft);
 		assertEquals(this.#posRight, this.posRight);
 		super.addEqual(endPosLeft);
-		this.#posLeft += part.length;
-		this.#posRight += part.length;
+		this.#posLeft += endPosLeft - this.posLeft;
+		this.#posRight += endPosLeft - this.posLeft;
 	}
 
 	addDiff(endPosLeft: number, endPosRight: number)
-	{	const partLeft = this.left.slice(this.posLeft, endPosLeft);
-		const partRight = this.right.slice(this.posRight, endPosRight);
-		assertEquals(this.#posLeft, this.posLeft);
+	{	assertEquals(this.#posLeft, this.posLeft);
 		assertEquals(this.#posRight, this.posRight);
 		super.addDiff(endPosLeft, endPosRight);
-		this.#posLeft += partLeft.length;
-		this.#posRight += partRight.length;
+		this.#posLeft += endPosLeft - this.posLeft;
+		this.#posRight += endPosRight - this.posRight;
 	}
 }
 
@@ -74,22 +68,19 @@ class DiffHtmlTest extends DiffHtml
 	#posRight = 0;
 
 	addEqual(endPosLeft: number)
-	{	const part = this.left.slice(this.posLeft, endPosLeft);
-		assertEquals(this.#posLeft, this.posLeft);
+	{	assertEquals(this.#posLeft, this.posLeft);
 		assertEquals(this.#posRight, this.posRight);
 		super.addEqual(endPosLeft);
-		this.#posLeft += part.length;
-		this.#posRight += part.length;
+		this.#posLeft += endPosLeft - this.posLeft;
+		this.#posRight += endPosLeft - this.posLeft;
 	}
 
 	addDiff(endPosLeft: number, endPosRight: number)
-	{	const partLeft = this.left.slice(this.posLeft, endPosLeft);
-		const partRight = this.right.slice(this.posRight, endPosRight);
-		assertEquals(this.#posLeft, this.posLeft);
+	{	assertEquals(this.#posLeft, this.posLeft);
 		assertEquals(this.#posRight, this.posRight);
 		super.addDiff(endPosLeft, endPosRight);
-		this.#posLeft += partLeft.length;
-		this.#posRight += partRight.length;
+		this.#posLeft += endPosLeft - this.posLeft;
+		this.#posRight += endPosRight - this.posRight;
 	}
 }
 
