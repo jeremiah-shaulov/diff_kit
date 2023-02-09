@@ -1,6 +1,9 @@
 import type {DiffSubj} from './diff_handler.ts';
 import {DiffHandler, DiffTerm} from './diff_handler.ts';
 
+const C_CR = '\r'.charCodeAt(0);
+const C_LF = '\n'.charCodeAt(0);
+
 export function diff(left: DiffSubj, right: DiffSubj, diffHandler: DiffHandler=new DiffTerm({indentWidth: 4}))
 {	diffHandler.left = left;
 	diffHandler.right = right;
@@ -77,14 +80,25 @@ export function diff(left: DiffSubj, right: DiffSubj, diffHandler: DiffHandler=n
 				isExtra = false;
 			}
 			// add equal part?
-			const endPos = l - bothDiffLen;
+			let endPos = l - bothDiffLen;
+			let endPosRight = r - bothDiffLen;
 			if (endPos > pos)
 			{	diffHandler.posLeft = pos;
 				diffHandler.posRight = r-(l - pos);
+				if (bothDiffLen==0 && len!=0)
+				{	// if it doesn't matter, shift the difference to line start
+					let c;
+					while (endPos>pos && (c = left.charCodeAt(endPos-1))!=C_CR && c!=C_LF && c==right.charCodeAt(r+from-1))
+					{	endPos--;
+						endPosRight--;
+						l--;
+						r--;
+					}
+				}
 				diffHandler.addEqual(endPos);
 			}
 			diffHandler.posLeft = endPos;
-			diffHandler.posRight = r - bothDiffLen;
+			diffHandler.posRight = endPosRight;
 			// add non-equal part
 			if (len == 0)
 			{	diffHandler.addDiff(lLen, rLen);

@@ -540,7 +540,7 @@ Deno.test
 			(	d,
 				unindent
 				(	`<->-</-> <d>abbc</d>
-					<+>+</+> <i>abb</i><ins>b</ins><i>c</i>
+					<+>+</+> <i>a</i><ins>b</ins><i>bbc</i>
 					`
 				)
 			);
