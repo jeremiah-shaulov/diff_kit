@@ -5,10 +5,10 @@ Deno lib that compares 2 strings and generates result like assertEquals(), also 
 
 ```ts
 // To download and run this example:
-// curl 'https://raw.githubusercontent.com/jeremiah-shaulov/diff_kit/main/README.md' | perl -ne '$y=$1 if /^```(ts\\b)?/;  print $_ if $y&&$m;  $m=$y&&($m||m~^// deno .*?/example1.ts~)' > /tmp/example1.ts
+// curl 'https://raw.githubusercontent.com/jeremiah-shaulov/diff_kit/v2.0.0/README.md' | perl -ne '$y=$1 if /^```(ts\\b)?/;  print $_ if $y&&$m;  $m=$y&&($m||m~^// deno .*?/example1.ts~)' > /tmp/example1.ts
 // deno run /tmp/example1.ts
 
-import {diff, DiffText, DiffTerm, DiffHtml} from 'https://deno.land/x/diff_kit@v1.0.1/mod.ts';
+import {diff, DiffText, DiffTerm, DiffHtml} from 'https://deno.land/x/diff_kit@v2.0.0/mod.ts';
 
 const left =
 `abc
@@ -56,7 +56,7 @@ function diff(left: DiffSubj, right: DiffSubj, diffHandler: DiffHandler=new Diff
 
 ## How the result is generated
 
-3rd parameter of `diff()` is of `DiffHandler` type. `DiffHandler` has exactly this implementation:
+The 3rd parameter of `diff()` is of `DiffHandler` type. `DiffHandler` has exactly this implementation:
 
 ```ts
 class DiffHandler
@@ -68,18 +68,18 @@ class DiffHandler
 
 	protected result = '';
 
-	addEqual(part: string)
-	{	this.result += part;
+	addEqual(endPosLeft: number)
+	{	this.result += this.left.slice(this.posLeft, endPosLeft);
 	}
 
-	addDiff(partLeft: string, partRight: string)
-	{	if (partRight)
+	addDiff(endPosLeft: number, endPosRight: number)
+	{	if (endPosRight > this.posRight)
 		{	this.result += '[-]';
-			this.result += partRight;
+			this.result += this.right.slice(this.posRight, endPosRight);
 		}
-		if (partLeft)
+		if (endPosLeft > this.posLeft)
 		{	this.result += '[+]';
-			this.result += partLeft;
+			this.result += this.left.slice(this.posLeft, endPosLeft);
 		}
 		this.result += '[=]';
 	}
@@ -94,10 +94,10 @@ When an instance of `DiffHandler` is used as a parameter to `diff()`, the very b
 
 ```ts
 // To download and run this example:
-// curl 'https://raw.githubusercontent.com/jeremiah-shaulov/diff_kit/main/README.md' | perl -ne '$y=$1 if /^```(ts\\b)?/;  print $_ if $y&&$m;  $m=$y&&($m||m~^// deno .*?/example2.ts~)' > /tmp/example2.ts
+// curl 'https://raw.githubusercontent.com/jeremiah-shaulov/diff_kit/v2.0.0/README.md' | perl -ne '$y=$1 if /^```(ts\\b)?/;  print $_ if $y&&$m;  $m=$y&&($m||m~^// deno .*?/example2.ts~)' > /tmp/example2.ts
 // deno run /tmp/example2.ts
 
-import {diff, DiffHandler} from 'https://deno.land/x/diff_kit@v1.0.1/mod.ts';
+import {diff, DiffHandler} from 'https://deno.land/x/diff_kit@v2.0.0/mod.ts';
 
 const left =
 `abc
@@ -120,14 +120,14 @@ de[-]*[=]f
 
 `diff()` calls the following methods and properties of `DiffHandler` to produce the result:
 - `left` and `right` properties are set to the first and the second `diff()` parameter.
-- `addEqual(part: string)` is called to add a text part that is the same for both the left-hand and the right-hand sides of the diff.
-- `addDiff(partLeft: string, partRight: string)` is called to add a part that is different. One of `partLeft` or `partRight` can be empty (but not both).
+- `addEqual(endPosLeft: number)` is called to add a text part that is the same for both the left-hand and the right-hand sides of the diff. `this.posLeft` contains the starting index of the part, and `endPosLeft` is the end index, so to extract the part do: `this.left.slice(this.posLeft, endPosLeft)`.
+- `addDiff(endPosLeft: number, endPosRight: number)` is called to add a part that is different. The left part is `this.left.slice(this.posLeft, endPosLeft)`, and the right is `this.right.slice(this.posRight, endPosRight)`. One of the parts can be empty (but not both).
 - Before calling `addEqual()` and `addDiff()`, `posLeft` and `posRight` properties are set to current positions in the `left` and `right`.
 - `toString()` - at last, the object is converted to string to produce the result.
 
 The same method is not called twice in sequence. That is, for example, after `addEqual()` either `addDiff()` or `toString()` will be called.
 
-To produce result in different format, need to use a subclass of `DiffHandler` that has different implementation of `addEqual()` and `addDiff()`.
+To produce results in different formats, use subclasses of `DiffHandler` that have different implementations of `addEqual()` and `addDiff()`.
 
 This library contains 3 classes that provide visualization of the diff result:
 - `DiffText` - generates line-by-line comparison in plain text.
