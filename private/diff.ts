@@ -77,13 +77,14 @@ export function diff(left: DiffSubj, right: DiffSubj, diffHandler: DiffHandler=n
 				isExtra = false;
 			}
 			// add equal part?
-			if (l-bothDiffLen > pos)
+			const endPos = l - bothDiffLen;
+			if (endPos > pos)
 			{	diffHandler.posLeft = pos;
 				diffHandler.posRight = r-(l - pos);
-				diffHandler.addEqual(l-bothDiffLen);
+				diffHandler.addEqual(endPos);
 			}
-			diffHandler.posLeft = l-bothDiffLen;
-			diffHandler.posRight = r-bothDiffLen;
+			diffHandler.posLeft = endPos;
+			diffHandler.posRight = r - bothDiffLen;
 			// add non-equal part
 			if (len == 0)
 			{	diffHandler.addDiff(lLen, rLen);
