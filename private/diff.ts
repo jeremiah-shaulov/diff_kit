@@ -82,42 +82,24 @@ export function diff(left: DiffSubj, right: DiffSubj, diffHandler: DiffHandler=n
 				diffHandler.posRight = r-(l - pos);
 				diffHandler.addEqual(l-bothDiffLen);
 			}
+			diffHandler.posLeft = l-bothDiffLen;
+			diffHandler.posRight = r-bothDiffLen;
 			// add non-equal part
 			if (len == 0)
-			{	diffHandler.posLeft = l-bothDiffLen;
-				diffHandler.posRight = r-bothDiffLen;
-				diffHandler.addDiff(lLen, rLen);
+			{	diffHandler.addDiff(lLen, rLen);
 				pos = l = lLen;
 				r = rLen;
 				break;
 			}
 			if (isExtra)
-			{	if (bothDiffLen > 0)
-				{	diffHandler.posLeft = l-bothDiffLen;
-					diffHandler.posRight = r-bothDiffLen;
-					diffHandler.addDiff(l+from, r);
-				}
-				else
-				{	diffHandler.posLeft = l;
-					diffHandler.posRight = r;
-					diffHandler.addDiff(l+from, r);
-				}
+			{	diffHandler.addDiff(l+from, r);
 				l += from;
 				pos = l;
 				l += len - 1; // will l++ on the next iter
 				r += len - 1; // will r++ on the next iter
 			}
 			else
-			{	if (bothDiffLen > 0)
-				{	diffHandler.posLeft = l-bothDiffLen;
-					diffHandler.posRight = r-bothDiffLen;
-					diffHandler.addDiff(l, r+from);
-				}
-				else
-				{	diffHandler.posLeft = l;
-					diffHandler.posRight = r;
-					diffHandler.addDiff(l, r+from);
-				}
+			{	diffHandler.addDiff(l, r+from);
 				r += from;
 				pos = l;
 				l += len - 1; // will l++ on the next iter
