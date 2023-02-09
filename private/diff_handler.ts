@@ -24,18 +24,18 @@ export class DiffHandler
 
 	protected result = '';
 
-	addEqual(part: string)
-	{	this.result += part;
+	addEqual(endPosLeft: number)
+	{	this.result += this.left.slice(this.posLeft, endPosLeft);
 	}
 
-	addDiff(partLeft: string, partRight: string)
-	{	if (partRight)
+	addDiff(endPosLeft: number, endPosRight: number)
+	{	if (endPosRight > this.posRight)
 		{	this.result += '[-]';
-			this.result += partRight;
+			this.result += this.right.slice(this.posRight, endPosRight);
 		}
-		if (partLeft)
+		if (endPosLeft > this.posLeft)
 		{	this.result += '[+]';
-			this.result += partLeft;
+			this.result += this.left.slice(this.posLeft, endPosLeft);
 		}
 		this.result += '[=]';
 	}
@@ -184,8 +184,9 @@ export class DiffText extends DiffHandler
 		return this.result;
 	}
 
-	addEqual(part: string)
-	{	// maybe add to previous incomplete line
+	addEqual(endPosLeft: number)
+	{	let part = this.left.slice(this.posLeft, endPosLeft);
+		// maybe add to previous incomplete line
 		if (this.#leftHalfLine || this.#rightHalfLine)
 		{	let i;
 			for (i=0; i<part.length; i++)
@@ -286,8 +287,10 @@ export class DiffText extends DiffHandler
 		return c==LF ? '\n' : c!=CR ? '' : subj.charCodeAt(nextPos+1)==LF ? '\r\n' : '\r';
 	}
 
-	addDiff(partLeft: string, partRight: string)
-	{	this.#eqHalfLine = '';
+	addDiff(endPosLeft: number, endPosRight: number)
+	{	const partLeft = this.left.slice(this.posLeft, endPosLeft);
+		const partRight = this.right.slice(this.posRight, endPosRight);
+		this.#eqHalfLine = '';
 		// deno-lint-ignore no-var
 		var {result, halfLine, isLight} = this.#addOne(this.#left, this.#leftHalfLine, partLeft, this.#curFromLeft, this.#addIndentMinus, this.#leftHalfLineIsLight, this.#deletedLightEnd, this.#deletedBegin, this.#deletedEnd);
 		this.#left = result;

@@ -80,13 +80,13 @@ export function diff(left: DiffSubj, right: DiffSubj, diffHandler: DiffHandler=n
 			if (l-bothDiffLen > pos)
 			{	diffHandler.posLeft = pos;
 				diffHandler.posRight = r-(l - pos);
-				diffHandler.addEqual(left.slice(pos, l-bothDiffLen));
+				diffHandler.addEqual(l-bothDiffLen);
 			}
 			// add non-equal part
 			if (len == 0)
 			{	diffHandler.posLeft = l-bothDiffLen;
 				diffHandler.posRight = r-bothDiffLen;
-				diffHandler.addDiff(left.slice(l-bothDiffLen, lLen), right.slice(r-bothDiffLen, rLen));
+				diffHandler.addDiff(lLen, rLen);
 				pos = l = lLen;
 				r = rLen;
 				break;
@@ -95,12 +95,12 @@ export function diff(left: DiffSubj, right: DiffSubj, diffHandler: DiffHandler=n
 			{	if (bothDiffLen > 0)
 				{	diffHandler.posLeft = l-bothDiffLen;
 					diffHandler.posRight = r-bothDiffLen;
-					diffHandler.addDiff(left.slice(l-bothDiffLen, l+from), right.slice(r-bothDiffLen, r));
+					diffHandler.addDiff(l+from, r);
 				}
 				else
 				{	diffHandler.posLeft = l;
 					diffHandler.posRight = r;
-					diffHandler.addDiff(left.slice(l, l+from), '');
+					diffHandler.addDiff(l+from, r);
 				}
 				l += from;
 				pos = l;
@@ -111,12 +111,12 @@ export function diff(left: DiffSubj, right: DiffSubj, diffHandler: DiffHandler=n
 			{	if (bothDiffLen > 0)
 				{	diffHandler.posLeft = l-bothDiffLen;
 					diffHandler.posRight = r-bothDiffLen;
-					diffHandler.addDiff(left.slice(l-bothDiffLen, l), right.slice(r-bothDiffLen, r+from));
+					diffHandler.addDiff(l, r+from);
 				}
 				else
 				{	diffHandler.posLeft = l;
 					diffHandler.posRight = r;
-					diffHandler.addDiff('', right.slice(r, r+from));
+					diffHandler.addDiff(l, r+from);
 				}
 				r += from;
 				pos = l;
@@ -128,15 +128,15 @@ export function diff(left: DiffSubj, right: DiffSubj, diffHandler: DiffHandler=n
 	if (l > pos)
 	{	diffHandler.posLeft = pos;
 		diffHandler.posRight = r-(l - pos);
-		diffHandler.addEqual(left.slice(pos, l));
+		diffHandler.addEqual(l);
 	}
 	diffHandler.posLeft = l;
 	diffHandler.posRight = r;
 	if (l < lLen)
-	{	diffHandler.addDiff(left.slice(l, lLen), '');
+	{	diffHandler.addDiff(lLen, r);
 	}
 	else if (r < rLen)
-	{	diffHandler.addDiff('', right.slice(r, rLen));
+	{	diffHandler.addDiff(l, rLen);
 	}
 	return diffHandler + '';
 }
