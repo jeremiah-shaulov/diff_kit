@@ -5,10 +5,10 @@ Deno lib that compares 2 strings and generates result like assertEquals(), also 
 
 ```ts
 // To download and run this example:
-// curl 'https://raw.githubusercontent.com/jeremiah-shaulov/diff_kit/v2.0.2/README.md' | perl -ne '$y=$1 if /^```(ts\\b)?/;  print $_ if $y&&$m;  $m=$y&&($m||m~^// deno .*?/example1.ts~)' > /tmp/example1.ts
+// curl 'https://raw.githubusercontent.com/jeremiah-shaulov/diff_kit/v2.0.3/README.md' | perl -ne '$y=$1 if /^```(ts\\b)?/;  print $_ if $y&&$m;  $m=$y&&($m||m~^// deno .*?/example1.ts~)' > /tmp/example1.ts
 // deno run /tmp/example1.ts
 
-import {diff, DiffText, DiffTerm, DiffHtml} from 'https://deno.land/x/diff_kit@v2.0.2/mod.ts';
+import {diff, DiffText, DiffTerm, DiffHtml} from 'https://deno.land/x/diff_kit@v2.0.3/mod.ts';
 
 const left =
 `abc
@@ -94,10 +94,10 @@ When an instance of `DiffHandler` is used as a parameter to `diff()`, the very b
 
 ```ts
 // To download and run this example:
-// curl 'https://raw.githubusercontent.com/jeremiah-shaulov/diff_kit/v2.0.2/README.md' | perl -ne '$y=$1 if /^```(ts\\b)?/;  print $_ if $y&&$m;  $m=$y&&($m||m~^// deno .*?/example2.ts~)' > /tmp/example2.ts
+// curl 'https://raw.githubusercontent.com/jeremiah-shaulov/diff_kit/v2.0.3/README.md' | perl -ne '$y=$1 if /^```(ts\\b)?/;  print $_ if $y&&$m;  $m=$y&&($m||m~^// deno .*?/example2.ts~)' > /tmp/example2.ts
 // deno run /tmp/example2.ts
 
-import {diff, DiffHandler} from 'https://deno.land/x/diff_kit@v2.0.2/mod.ts';
+import {diff, DiffHandler} from 'https://deno.land/x/diff_kit@v2.0.3/mod.ts';
 
 const left =
 `abc
