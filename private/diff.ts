@@ -88,7 +88,8 @@ export function diff(left: DiffSubj, right: DiffSubj, diffHandler: DiffHandler=n
 				if (bothDiffLen==0 && len!=0)
 				{	// if it doesn't matter, shift the difference to line start
 					let c;
-					while (endPos>pos && (c = left.charCodeAt(endPos-1))!=CR && c!=LF && c==right.charCodeAt(r+from-1))
+					const subj = isExtra ? left : right;
+					while (endPos>pos && (c = left.charCodeAt(endPos-1))!=CR && c!=LF && c==subj.charCodeAt(r+from-1))
 					{	endPos--;
 						endPosRight--;
 						l--;
