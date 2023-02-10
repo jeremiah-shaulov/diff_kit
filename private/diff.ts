@@ -69,15 +69,18 @@ export function diff(left: DiffSubj, right: DiffSubj, diffHandler: DiffHandler=n
 				l++;
 				r++;
 			}
-			let from=0, len=0, isExtra=true;
+			let lFrom=0, rFrom=0, len=0, subj=left, subjBase=0;
 			if (extraLenLast > len)
-			{	from = extraFromLast;
+			{	lFrom = extraFromLast;
 				len = extraLenLast;
+				subjBase = l + lFrom - 1;
 			}
 			if (missingLenLast > len)
-			{	from = missingFromLast;
+			{	lFrom = 0;
+				rFrom = missingFromLast;
 				len = missingLenLast;
-				isExtra = false;
+				subj = right;
+				subjBase = r + rFrom - 1;
 			}
 			// add equal part?
 			let endPos = l - bothDiffLen;
@@ -88,8 +91,6 @@ export function diff(left: DiffSubj, right: DiffSubj, diffHandler: DiffHandler=n
 				if (bothDiffLen==0 && len!=0)
 				{	// if it doesn't matter, shift the difference to line start
 					let c;
-					const subj = isExtra ? left : right;
-					let subjBase = isExtra ? l+from-1 : r+from-1;
 					while (endPos>pos && (c = left.charCodeAt(endPos-1))!=CR && c!=LF && c==subj.charCodeAt(subjBase))
 					{	endPos--;
 						endPosRight--;
@@ -109,20 +110,12 @@ export function diff(left: DiffSubj, right: DiffSubj, diffHandler: DiffHandler=n
 				r = rLen;
 				break;
 			}
-			if (isExtra)
-			{	diffHandler.addDiff(l+from, r);
-				l += from;
-				pos = l;
-				l += len - 1; // will l++ on the next iter
-				r += len - 1; // will r++ on the next iter
-			}
-			else
-			{	diffHandler.addDiff(l, r+from);
-				r += from;
-				pos = l;
-				l += len - 1; // will l++ on the next iter
-				r += len - 1; // will r++ on the next iter
-			}
+			diffHandler.addDiff(l+lFrom, r+rFrom);
+			l += lFrom;
+			r += rFrom;
+			pos = l;
+			l += len - 1; // will l++ on the next iter
+			r += len - 1; // will r++ on the next iter
 		}
 	}
 	if (l > pos)
