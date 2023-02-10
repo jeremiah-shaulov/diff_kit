@@ -665,84 +665,84 @@ Deno.test
 			);
 		}
 		{	const left =
-			`	[Aaa]
-				[Bbb[0]Ccc Ddd]
-				[Bbb[0]Eee[0]Fff Ddd]
-				[Bbb[0]Eee[1]Fff Ddd]
-				[Bbb[1]Ccc Ddd]
-				[Bbb[1]Eee[0]Fff Ddd]
-				[Bbb[1]Eee[1]Fff Ddd]
-				[Aaa Ddd]
+			`	[A]
+				[Bb[0]Ccc Dddd]
+				[Bb[0]Eeeee[0]Fff Dddd]
+				[Bb[0]Eeeee[11]Fff Dddd]
+				[Bb[11]Ccc Dddd]
+				[Bb[11]Eeeee[0]Fff Dddd]
+				[Bb[11]Eeeee[11]Fff Dddd]
+				[A Dddd]
 				[Zzz]
 			`;
 			const right =
-			`	[Aaa]
-				[Bbb[0]Eee[0]Fff Ddd]
-				[Bbb[0]Eee[1]Fff Ddd]
-				[Bbb[0]Ccc Ddd]
-				[Bbb[1]Eee[0]Fff Ddd]
-				[Bbb[2]Eee[1]Fff Ddd]
-				[Bbb[1]Ccc Ddd]
-				[Aaa Ddd]
+			`	[A]
+				[Bb[0]Eeeee[0]Fff Dddd]
+				[Bb[0]Eeeee[11]Fff Dddd]
+				[Bb[0]Ccc Dddd]
+				[Bb[11]Eeeee[0]Fff Dddd]
+				[Bb[222]Eeeee[11]Fff Dddd]
+				[Bb[11]Ccc Dddd]
+				[A Dddd]
 				[Zzz]
 			`;
 			const d = diff(unindent(left), unindent(right), new DiffTextTest({indentWidth: 2}, STYLE));
 			assertEquals
 			(	d,
 				'  '+unindent
-				(	`[Aaa]
-					<->-</-> <del>[Bbb[0]Ccc Ddd]</del>
-					  [Bbb[0]Eee[0]Fff Ddd]
-					  [Bbb[0]Eee[1]Fff Ddd]
-					<+>+</+> <ins>[Bbb[0]Ccc Ddd]</ins>
-					<+>+</+> <ins>[Bbb[1]Eee[0]Fff Ddd]</ins>
-					<+>+</+> <ins>[Bbb[2]Eee[1]Fff Ddd]</ins>
-					  [Bbb[1]Ccc Ddd]
-					<->-</-> <del>[Bbb[1]Eee[0]Fff Ddd]</del>
-					<->-</-> <del>[Bbb[1]Eee[1]Fff Ddd]</del>
-					  [Aaa Ddd]
+				(	`[A]
+					<->-</-> <del>[Bb[0]Ccc Dddd]</del>
+					  [Bb[0]Eeeee[0]Fff Dddd]
+					  [Bb[0]Eeeee[11]Fff Dddd]
+					<+>+</+> <ins>[Bb[0]Ccc Dddd]</ins>
+					<+>+</+> <ins>[Bb[11]Eeeee[0]Fff Dddd]</ins>
+					<+>+</+> <ins>[Bb[222]Eeeee[11]Fff Dddd]</ins>
+					  [Bb[11]Ccc Dddd]
+					<->-</-> <del>[Bb[11]Eeeee[0]Fff Dddd]</del>
+					<->-</-> <del>[Bb[11]Eeeee[11]Fff Dddd]</del>
+					  [A Dddd]
 					  [Zzz]
 					`
 				)
 			);
 		}
 		{	const left =
-			`	[Aaa]
-				[Bbb[0]Eee[0]Fff Ddd]
-				[Bbb[0]Eee[1]Fff Ddd]
-				[Bbb[0]Ccc Ddd]
-				[Bbb[1]Eee[0]Fff Ddd]
-				[Bbb[2]Eee[1]Fff Ddd]
-				[Bbb[1]Ccc Ddd]
-				[Aaa Ddd]
+			`	[A]
+				[Bb[0]Eeeee[0]Fff Dddd]
+				[Bb[0]Eeeee[11]Fff Dddd]
+				[Bb[0]Ccc Dddd]
+				[Bb[11]Eeeee[0]Fff Dddd]
+				[Bb[222]Eeeee[11]Fff Dddd]
+				[Bb[11]Ccc Dddd]
+				[A Dddd]
 				[Zzz]
 			`;
 			const right =
-			`	[Aaa]
-				[Bbb[0]Ccc Ddd]
-				[Bbb[0]Eee[0]Fff Ddd]
-				[Bbb[0]Eee[1]Fff Ddd]
-				[Bbb[1]Ccc Ddd]
-				[Bbb[1]Eee[0]Fff Ddd]
-				[Bbb[1]Eee[1]Fff Ddd]
-				[Aaa Ddd]
+			`	[A]
+				[Bb[0]Ccc Dddd]
+				[Bb[0]Eeeee[0]Fff Dddd]
+				[Bb[0]Eeeee[11]Fff Dddd]
+				[Bb[11]Ccc Dddd]
+				[Bb[11]Eeeee[0]Fff Dddd]
+				[Bb[11]Eeeee[11]Fff Dddd]
+				[A Dddd]
 				[Zzz]
 			`;
 			const d = diff(unindent(left), unindent(right), new DiffTextTest({indentWidth: 2}, STYLE));
 			assertEquals
 			(	d,
 				'  '+unindent
-				(	`[Aaa]
-					<+>+</+> <ins>[Bbb[0]Ccc Ddd]</ins>
-					  [Bbb[0]Eee[0]Fff Ddd]
-					  [Bbb[0]Eee[1]Fff Ddd]
-					<->-</-> <del>[Bbb[0]Ccc Ddd]</del>
-					<->-</-> <del>[Bbb[1]Eee[0]Fff Ddd]</del>
-					<->-</-> <del>[Bbb[2]Eee[1]Fff Ddd]</del>
-					  [Bbb[1]Ccc Ddd]
-					<+>+</+> <ins>[Bbb[1]Eee[0]Fff Ddd]</ins>
-					<+>+</+> <ins>[Bbb[1]Eee[1]Fff Ddd]</ins>
-					  [Aaa Ddd]
+				(	`[A]
+					<+>+</+> <ins>[Bb[0]Ccc Dddd]</ins>
+					  [Bb[0]Eeeee[0]Fff Dddd]
+					  [Bb[0]Eeeee[11]Fff Dddd]
+					<->-</-> <del>[Bb[0]Ccc Dddd]</del>
+					<->-</-> <del>[Bb[11]Eeeee[0]Fff Dddd]</del>
+					<->-</-> <del>[Bb[222]Eeeee[11]Fff Dddd]</del>
+					  [Bb[11]Ccc Dddd]
+					<+>+</+> <ins>[Bb[11]Eeeee[0]Fff Dddd]</ins>
+					<+>+</+> <ins>[Bb[11]Eeeee[11]Fff Dddd]</ins>
+					  [A Dddd]
 					  [Zzz]
 					`
 				)
