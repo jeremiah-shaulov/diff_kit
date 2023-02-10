@@ -89,11 +89,13 @@ export function diff(left: DiffSubj, right: DiffSubj, diffHandler: DiffHandler=n
 				{	// if it doesn't matter, shift the difference to line start
 					let c;
 					const subj = isExtra ? left : right;
-					while (endPos>pos && (c = left.charCodeAt(endPos-1))!=CR && c!=LF && c==subj.charCodeAt(r+from-1))
+					let subjBase = isExtra ? l+from-1 : r+from-1;
+					while (endPos>pos && (c = left.charCodeAt(endPos-1))!=CR && c!=LF && c==subj.charCodeAt(subjBase))
 					{	endPos--;
 						endPosRight--;
 						l--;
 						r--;
+						subjBase--;
 					}
 				}
 				diffHandler.addEqual(endPos);

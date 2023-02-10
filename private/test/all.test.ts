@@ -600,5 +600,153 @@ Deno.test
 				)
 			);
 		}
+		{	const left =
+			`	.Aaa,
+				.Bbb,
+				.Ccc,
+				.Ddd,
+				.Eee,
+				.Fff,
+				.Ggg,
+			`;
+			const right =
+			`	.Aaa,
+				.Ccc,
+				.Fff,
+				.Ggg,
+				.Hhh,
+			`;
+			const d = diff(unindent(left), unindent(right), new DiffTextTest({indentWidth: 2}, STYLE));
+			assertEquals
+			(	d,
+				'  '+unindent
+				(	`.Aaa,
+					<->-</-> <del>.Bbb,</del>
+					  .Ccc,
+					<->-</-> <del>.Ddd,</del>
+					<->-</-> <del>.Eee,</del>
+					  .Fff,
+					  .Ggg,
+					<+>+</+> <ins>.Hhh,</ins>
+					`
+				)
+			);
+		}
+		{	const left =
+			`	.Aaa,
+				.Ccc,
+				.Fff,
+				.Ggg,
+				.Hhh,
+			`;
+			const right =
+			`	.Aaa,
+				.Bbb,
+				.Ccc,
+				.Ddd,
+				.Eee,
+				.Fff,
+				.Ggg,
+			`;
+			const d = diff(unindent(left), unindent(right), new DiffTextTest({indentWidth: 2}, STYLE));
+			assertEquals
+			(	d,
+				'  '+unindent
+				(	`.Aaa,
+					<+>+</+> <ins>.Bbb,</ins>
+					  .Ccc,
+					<+>+</+> <ins>.Ddd,</ins>
+					<+>+</+> <ins>.Eee,</ins>
+					  .Fff,
+					  .Ggg,
+					<->-</-> <del>.Hhh,</del>
+					`
+				)
+			);
+		}
+		{	const left =
+			`	[Aaa]
+				[Bbb[0]Ccc Ddd]
+				[Bbb[0]Eee[0]Fff Ddd]
+				[Bbb[0]Eee[1]Fff Ddd]
+				[Bbb[1]Ccc Ddd]
+				[Bbb[1]Eee[0]Fff Ddd]
+				[Bbb[1]Eee[1]Fff Ddd]
+				[Aaa Ddd]
+				[Zzz]
+			`;
+			const right =
+			`	[Aaa]
+				[Bbb[0]Eee[0]Fff Ddd]
+				[Bbb[0]Eee[1]Fff Ddd]
+				[Bbb[0]Ccc Ddd]
+				[Bbb[1]Eee[0]Fff Ddd]
+				[Bbb[2]Eee[1]Fff Ddd]
+				[Bbb[1]Ccc Ddd]
+				[Aaa Ddd]
+				[Zzz]
+			`;
+			const d = diff(unindent(left), unindent(right), new DiffTextTest({indentWidth: 2}, STYLE));
+			assertEquals
+			(	d,
+				'  '+unindent
+				(	`[Aaa]
+					<->-</-> <del>[Bbb[0]Ccc Ddd]</del>
+					  [Bbb[0]Eee[0]Fff Ddd]
+					  [Bbb[0]Eee[1]Fff Ddd]
+					<+>+</+> <ins>[Bbb[0]Ccc Ddd]</ins>
+					<+>+</+> <ins>[Bbb[1]Eee[0]Fff Ddd]</ins>
+					<+>+</+> <ins>[Bbb[2]Eee[1]Fff Ddd]</ins>
+					  [Bbb[1]Ccc Ddd]
+					<->-</-> <del>[Bbb[1]Eee[0]Fff Ddd]</del>
+					<->-</-> <del>[Bbb[1]Eee[1]Fff Ddd]</del>
+					  [Aaa Ddd]
+					  [Zzz]
+					`
+				)
+			);
+		}
+		{	const left =
+			`	[Aaa]
+				[Bbb[0]Eee[0]Fff Ddd]
+				[Bbb[0]Eee[1]Fff Ddd]
+				[Bbb[0]Ccc Ddd]
+				[Bbb[1]Eee[0]Fff Ddd]
+				[Bbb[2]Eee[1]Fff Ddd]
+				[Bbb[1]Ccc Ddd]
+				[Aaa Ddd]
+				[Zzz]
+			`;
+			const right =
+			`	[Aaa]
+				[Bbb[0]Ccc Ddd]
+				[Bbb[0]Eee[0]Fff Ddd]
+				[Bbb[0]Eee[1]Fff Ddd]
+				[Bbb[1]Ccc Ddd]
+				[Bbb[1]Eee[0]Fff Ddd]
+				[Bbb[1]Eee[1]Fff Ddd]
+				[Aaa Ddd]
+				[Zzz]
+			`;
+			const d = diff(unindent(left), unindent(right), new DiffTextTest({indentWidth: 2}, STYLE));
+			assertEquals
+			(	d,
+				'  '+unindent
+				(	`[Aaa]
+					<+>+</+> <ins>[Bbb[0]Ccc Ddd]</ins>
+					  [Bbb[0]Eee[0]Fff Ddd]
+					  [Bbb[0]Eee[1]Fff Ddd]
+					<->-</-> <del>[Bbb[0]Ccc Ddd]</del>
+					<->-</-> <del>[Bbb[1]Eee[0]Fff Ddd]</del>
+					<->-</-> <del>[Bbb[2]Eee[1]Fff Ddd]</del>
+					  [Bbb[1]Ccc Ddd]
+					<+>+</+> <ins>[Bbb[1]Eee[0]Fff Ddd]</ins>
+					<+>+</+> <ins>[Bbb[1]Eee[1]Fff Ddd]</ins>
+					  [Aaa Ddd]
+					  [Zzz]
+					`
+				)
+			);
+		}
 	}
 );
