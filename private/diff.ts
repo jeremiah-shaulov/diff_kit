@@ -3,6 +3,7 @@ import {DiffHandler, DiffTerm} from './diff_handler.ts';
 
 const CR = 13;
 const LF = 10;
+const SPACE = 32;
 
 export function diff(left: DiffSubj, right: DiffSubj, diffHandler: DiffHandler=new DiffTerm({indentWidth: 4}))
 {	diffHandler.left = left;
@@ -84,25 +85,33 @@ export function diff(left: DiffSubj, right: DiffSubj, diffHandler: DiffHandler=n
 			}
 			// add equal part?
 			let endPos = l - bothDiffLen;
-			let endPosRight = r - bothDiffLen;
 			if (endPos > pos)
 			{	diffHandler.posLeft = pos;
 				diffHandler.posRight = r-(l - pos);
 				if (bothDiffLen==0 && len!=0)
-				{	// if it doesn't matter, shift the difference to line start
-					let c;
-					while (endPos>pos && (c = left.charCodeAt(endPos-1))!=CR && c!=LF && c==subj.charCodeAt(subjBase))
-					{	endPos--;
-						endPosRight--;
-						l--;
-						r--;
-						subjBase--;
+				{	// if it doesn't matter, shift the difference to the nearest line start, or at least to space
+					let shift = 0;
+					for (let i=endPos; i>pos; i--)
+					{	const c = left.charCodeAt(i - 1);
+						if (c != subj.charCodeAt(subjBase--))
+						{	break;
+						}
+						if (c == SPACE)
+						{	shift = endPos - i;
+						}
+						else if (c==CR || c==LF)
+						{	shift = endPos - i;
+							break;
+						}
 					}
+					endPos -= shift;
+					l -= shift;
+					r -= shift;
 				}
 				diffHandler.addEqual(endPos);
 			}
-			diffHandler.posLeft = endPos;
-			diffHandler.posRight = endPosRight;
+			diffHandler.posLeft = endPos; // l - bothDiffLen
+			diffHandler.posRight = r - bothDiffLen;
 			// add non-equal part
 			if (len == 0)
 			{	diffHandler.addDiff(lLen, rLen);
